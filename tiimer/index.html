@@ -1,55 +1,96 @@
- <!DOCTYPE html>
-<html>
-  <head>
-    <title>HIIT Timer!</title>
-    <script src="tiimer.js"></script>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-  </head>
-  <body>
-    <div id="root">
-      <h1>HIIT Timer</h1>
-      <label for="expr">Tiimer expression:</label>
-      <input type="text" id="expr" name="expr"><br>
-      <label for="value">Tiimer current value:</label>
-      <input type="text" id="value" name="value">
-      <button name="begin timer">
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-      <div id="instructions">
-	<h2>Instructions</h2>
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Tiimer - A simple, minimalist HIIT timer</title>
+  <meta name="description" content="A simple, minimalist HIIT timer">
+  <meta name="author" content="Sean Riddle">
 
-	<h3>Time literals</h3>
-	A string in the form "XhYmZs" represents a timed period of X hours, Y minutes, and Z seconds. Any of the different time durations can be present or absent.
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<h4>Examples</h4>
-	"1m30s" - one 1-minute-30-second lap
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
-	<h3>Conjunctions</h3>
-	Multiple time periods can be separated with a comma (",")
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="normalize.css">
+  <link rel="stylesheet" href="skeleton.css">
 
-	<h4>Examples</h4>
-	"1m,30s" - one one-minute lap followed by one lap of 30 seconds
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- <link rel="icon" type="image/png" href="images/favicon.png"> -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
 
-	<h3>Grouping</h3>
-	Use parentheses for grouping.
+  <!-- User JS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="tiimer.js"></script>
 
-	<h4>Examples</h4>
-	"(1m)" - one one-minute lap (parentheses have no effect in this context)
-	"((1m))" - one one-minute lap (parentheses may be nested)
-	"(1m),30s" - one one-minute lap followed by one 30-second lap (groupings may be conjuncted)
+</head>
+<body>
 
-	<h3>Repetition</h3>
-	The syntax "EXPRxn", where EXPR is a timing expression, x is the literal "x", and n is an integer greater than 0, means that the grouping should be executed n times, one after another.
-
-	<h4>Examples</h4>
-	"1mx3" - three one-minute laps
-	"(1m)x3" - three one-minute laps (you can repeat groupings)
-	"1mx3,30s" - three one-minute laps followed by one 30-second lap
-	"(1m,30s)x2" - one-minute lap, then 30-second lap, then one-minute lap, then 30-second lap
-
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+      <div class="one-half column" style="margin-top: 25%">
+        <!-- <h4>Basic Page</h4> -->
+        <!-- <p>This index.html page is a placeholder with the CSS, font and favicon. It's just waiting for you to add some content! If you need some help hit up the <a href="http://www.getskeleton.com">Skeleton documentation</a>.</p> -->
+        <h1>HIIT Timer</h1>
+	<div id="timer">
+          <label for="expr">Tiimer expression:</label>
+          <input type="text" id="expr" name="expr"><br>
+          <label for="value">Tiimer current value:</label>
+          <input type="text" id="value" name="value">
+          <button name="begin timer">
+	</div>
+  
+        <div id="instructions">
+  	<h2>Instructions</h2>
+  
+  	<h3>Time literals</h3>
+  	A string in the form "XhYmZs" represents a timed period of X hours, Y minutes, and Z seconds. Any of the different time durations can be present or absent.
+  
+  	<h4>Examples</h4>
+  	"1m30s" - one 1-minute-30-second lap
+  
+  	<h3>Conjunctions</h3>
+  	Multiple time periods can be separated with a comma (",")
+  
+  	<h4>Examples</h4>
+  	"1m,30s" - one one-minute lap followed by one lap of 30 seconds
+  
+  	<h3>Grouping</h3>
+  	Use parentheses for grouping.
+  
+  	<h4>Examples</h4>
+  	"(1m)" - one one-minute lap (parentheses have no effect in this context)
+  	"((1m))" - one one-minute lap (parentheses may be nested)
+  	"(1m),30s" - one one-minute lap followed by one 30-second lap (groupings may be conjuncted)
+  
+  	<h3>Repetition</h3>
+  	The syntax "EXPRxn", where EXPR is a timing expression, x is the literal "x", and n is an integer greater than 0, means that the grouping should be executed n times, one after another.
+  
+  	<h4>Examples</h4>
+  	"1mx3" - three one-minute laps
+  	"(1m)x3" - three one-minute laps (you can repeat groupings)
+  	"1mx3,30s" - three one-minute laps followed by one 30-second lap
+  	"(1m,30s)x2" - one-minute lap, then 30-second lap, then one-minute lap, then 30-second lap
+  
+        </div>
       </div>
     </div>
-  </body>
+  </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
 </html>
