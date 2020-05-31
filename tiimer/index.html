@@ -42,12 +42,13 @@
   <div class="container">
     <div class="row">
       <div id="timer_frame" class="six columns">
-        <h2>HIIT Timer</h2>
+        <h3>Tiimer</h3>
+	<h4>Minimalist HIIT Timer</h4>
 	<form>
 	  <div class="row">
 	  </div>
 	  
-        <label for="expr">Tiimer expression:</label>
+        <label for="expr">Timing expression:</label>
         <input type="text" class="u-full-width" id="expr" name="expr"><br>
 	</form>
 	<button class="button-primary">Start</button>
@@ -60,35 +61,43 @@
   	<h4>Instructions</h4>
   
   	<h5>Time literals</h5>
-  	A string in the form "XhYmZs" represents a timed period of X hours, Y minutes, and Z seconds. Any of the different time durations can be present or absent.
+	<p>A string in the form "XhYmZs" represents a timed period of X hours, Y minutes, and Z seconds. Any of the different time durations can be present or absent.</p>
   
-  	<h6>Examples</h6>
-  	"1m30s" - one 1-minute-30-second lap
+  	<h6><b>Examples</b></h6>
+	<ul>
+  	  <li>"1m30s" - one 1-minute-30-second lap</li>
+	</ul>
   
   	<h5>Conjunctions</h5>
-  	Multiple time periods can be separated with a comma (",")
+  	<p>Multiple time periods can be separated with a comma (",").</p>
   
-  	<h6>Examples</h6>
-  	"1m,30s" - one one-minute lap followed by one lap of 30 seconds
+  	<h6><b>Examples</b></h6>
+	<ul>
+	  <li>"1m,30s" - one one-minute lap followed by one lap of 30 seconds</li>
+	</ul>
+
   
   	<h5>Grouping</h5>
-  	Use parentheses for grouping.
+  	<p>Use parentheses for grouping.</p>
   
-  	<h6>Examples</h6>
-  	"(1m)" - one one-minute lap (parentheses have no effect in this context)
-  	"((1m))" - one one-minute lap (parentheses may be nested)
-  	"(1m),30s" - one one-minute lap followed by one 30-second lap (groupings may be conjuncted)
+  	<h6><b>Examples</b></h6>
+	<ul>
+	  <li>"(1m)" - one one-minute lap (parentheses have no effect in this context)</li>
+	  <li>"((1m))" - one one-minute lap (parentheses may be nested)</li>
+	  <li>"(1m),30s" - one one-minute lap followed by one 30-second lap (groupings may be conjuncted)</li>
+	</ul>
   
   	<h5>Repetition</h5>
-  	The syntax "EXPRxn", where EXPR is a timing expression, x is the literal "x", and n is an integer greater than 0, means that the grouping should be executed n times, one after another.
+  	<p>The syntax "EXPRxn", where EXPR is a timing expression, x is the literal "x", and n is an integer greater than 0, means that the grouping should be executed n times, one after another.</p>
   
 	<div id="repetition_examples">
-  	<!-- <h6>Examples</h6> -->
-	<b>Examples</b><br>
-  	"1mx3" - three one-minute laps
-  	"(1m)x3" - three one-minute laps (you can repeat groupings)
-  	"1mx3,30s" - three one-minute laps followed by one 30-second lap
-  	"(1m,30s)x2" - one-minute lap, then 30-second lap, then one-minute lap, then 30-second lap
+	<h6><b>Examples</b></h6>
+	<ul>
+	  <li>"1mx3" - three one-minute laps</li>
+	  <li>"(1m)x3" - three one-minute laps (you can repeat groupings)</li>
+	  <li>"1mx3,30s" - three one-minute laps followed by one 30-second lap</li>
+	  <li>"(1m,30s)x2" - one-minute lap, then 30-second lap, then one-minute lap, then 30-second lap</li>
+	</ul>
 	</div>
       </div>
     </div>
