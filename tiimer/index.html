@@ -49,9 +49,9 @@
 	  </div>
 	  
         <label for="expr">Timing expression:</label>
-        <input type="text" class="u-full-width" id="expr" name="expr"><br>
+        <input type="text" onkeyup="checkStartButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
 	</form>
-	<button class="button-primary">Start</button>
+	<button id="start_button" class="button-primary">Start</button>
 	<div id="timer">
 	</div>
       </div>
