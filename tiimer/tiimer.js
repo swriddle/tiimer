@@ -15,6 +15,9 @@ function parseTime(string) {
         let minute = m[4];
         let second = m[6];
         console.log(`time fragment: ${hour} hours, ${minute} minutes, ${second} seconds`);
+        if (hour == null && minute == null && second == null) {
+            return [null, null];
+        }
         return [[hour, minute, second], m[0].length];
     } else {
         console.log("no match - '" + string + "'");
@@ -23,24 +26,37 @@ function parseTime(string) {
 }
 
 function parse(string) {
+    const watchdog = 5;
+    let watchdogTimer = 0;
     let parseStart = 0;
+    let keepGoing = true;
     while (keepGoing) {
-        let result = parseStep(string);
+        watchdogTimer += 1;
+        if (watchdogTimer >= watchdog) {
+            console.log("stopped via watchdog");
+            keepGoing = false;
+        }
+        var result, parseStartCandidate;
+        [result, parseStartCandidate] = parseStep(string.substring(parseStart));
         if (result == "ambiguous") {
             console.log("ambiguous response");
+            keepGoing = false;
         } else if (result == "not-found") {
             console.log("not-found response");
+            keepGoing = false;
         } else {
             console.log("normal handling");
-            i    console.log("result: " + JSON.stringify(result));
+            console.log("result: " + JSON.stringify(result));
+            parseStart += parseStartCandidate;
         }
-        blahclose this
+    }
 }
 
 function parseStep(string) {
     let results = [["parseTime", parseTime(string)]];
     var matchResult;
     var matchOperation;
+    var matchConsumedCount;
     foundResult = false;
     var i;
     for (i = 0; i < results.length; i++) {
@@ -50,12 +66,13 @@ function parseStep(string) {
         matchResult = operationDetails[0];
         matchOperation = operationName;
         let consumedCount = operationDetails[1];
+        matchConsumedCount = consumedCount;
 
         if (consumedCount != null) {
             // console.log("consumedCount not null");
             if (foundResult) {
                 // console.log("definitely ambiguous");
-	        return "ambiguous";
+	        return ["ambiguous", null];
             } else {
                 // console.log("found one result");
                 foundResult = true;
@@ -64,9 +81,9 @@ function parseStep(string) {
     }
 
     if (!foundResult) {
-        return "not-found";
+        return ["not-found", null];
     }
 
     console.log(`Made it through with matchResult: ${JSON.stringify(matchResult)} for operation '${matchOperation}'`);
-    return matchResult;
+    return [matchResult, matchConsumedCount];
 }
