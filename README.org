@@ -1,3 +1,5 @@
+#+STARTUP: showall
+
 * README
 ** What is it?
    A minimal HIIT timer.
