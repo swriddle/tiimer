@@ -18,6 +18,11 @@ function disableButton() {
 function button() {
     return document.getElementById("start_button");
 }
+
+function buttonClick() {
+    console.log("click!");
+}
+
 function parseTime(string) {
     const timeRegex = /^((\d+)h)?((\d+)m)?((\d+)s)?/;
     let m = timeRegex.exec(string);
