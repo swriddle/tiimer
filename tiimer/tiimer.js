@@ -81,8 +81,8 @@ function parse(string) {
             console.log("stopped via watchdog");
             keepGoing = false;
         }
-        var result, parseStartCandidate;
-        [result, parseStartCandidate] = parseStep(string.substring(parseStart));
+        var result, parseStartCandidate, operationName;
+        [result, parseStartCandidate, operationName] = parseStep(string.substring(parseStart));
         if (result == "ambiguous") {
             console.log("ambiguous response");
             keepGoing = false;
@@ -130,5 +130,5 @@ function parseStep(string) {
     }
 
     console.log(`Made it through with matchResult: ${JSON.stringify(matchResult)} for operation '${matchOperation}'`);
-    return [matchResult, matchConsumedCount];
+    return [matchResult, matchConsumedCount, matchOperation];
 }
