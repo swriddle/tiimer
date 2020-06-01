@@ -22,15 +22,46 @@ function buttonClick() {
     console.log("click!");
 }
 
+function parseGroupOpen(string) {
+    const groupOpenRegex = /^\(/;
+    let m = groupOpenRegex.exec(string);
+    if (m) {
+        return [true, 1];
+    } else {
+        return [null, null];
+    }
+}
+
+function parseGroupClose(string) {
+    const groupCloseRegex = /^\)/;
+    let m = groupCloseRegex.exec(string);
+    if (m) {
+        return [true, 1];
+    } else {
+        return [null, null];
+    }
+}
+
+function parseRepetition(string) {
+    const repetitionRegex = /^x(\d+)/;
+    let m = repetitionRegex.exec(string);
+    if (m) {
+        console.log("-- repetition regex! --");
+        console.log(JSON.stringify(m));
+        // return [true, 1];
+        // return [null, null];
+        return [m[1], m[0].length];
+    } else {
+        return [null, null];
+    }
+}
+
 function parseSeparator(string) {
-    console.log("parsing separator from string: **" + string + "**");
     const separatorRegex = /^,/;
     let m = separatorRegex.exec(string);
     if (m) {
-        console.log("wait what it worked?");
         return [true, 1];
     } else {
-        console.log("no go!");
         return [null, null];
     }
 }
@@ -117,7 +148,7 @@ function parseStep(string) {
     if (string.length == 0) {
         return ["fully-parsed", null, null]
     }
-    let results = [["parseTime", parseTime(string)], ["parseSeparator", parseSeparator(string)]];
+    let results = [["parseTime", parseTime(string)], ["parseSeparator", parseSeparator(string)], ["parseGroupOpen", parseGroupOpen(string)], ["parseGroupClose", parseGroupClose(string)], ["parseRepetition", parseRepetition(string)]];
     var matchResult;
     var matchOperation;
     var matchConsumedCount;
