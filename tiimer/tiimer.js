@@ -45,6 +45,21 @@ function parseTime(string) {
         if (hour == null && minute == null && second == null) {
             return [null, null];
         }
+        if (hour == null) {
+            hour = 0;
+        } else {
+            hour = parseInt(hour, 10);
+        }
+        if (minute == null) {
+            minute = 0;
+        } else {
+            minute = parseInt(minute, 10);
+        }
+        if (second == null) {
+            second = 0;
+        } else {
+            second = parseInt(second, 10);
+        }
         return [[hour, minute, second], m[0].length];
     } else {
         return [null, null];
