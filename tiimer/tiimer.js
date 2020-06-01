@@ -108,10 +108,10 @@ function parseStep(string) {
         let operationStuff = results[i];
         let operationName = operationStuff[0];
         let operationDetails = operationStuff[1];
-        matchResult = operationDetails[0];
-        matchOperation = operationName;
+        // matchResult = operationDetails[0];
+        // matchOperation = operationName;
         let consumedCount = operationDetails[1];
-        matchConsumedCount = consumedCount;
+        // matchConsumedCount = consumedCount;
 
         if (consumedCount != null) {
             // console.log("consumedCount not null");
