@@ -1,7 +1,6 @@
 function checkStartButtonStatus() {
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
-    console.log("content = '" + content + "'");
     parse(content);
 }
 
@@ -40,18 +39,14 @@ function parseTime(string) {
     const timeRegex = /^((\d+)h)?((\d+)m)?((\d+)s)?/;
     let m = timeRegex.exec(string);
     if (m) {
-        console.log("match! - '" + string + "'");
-        console.log("m: " + m);
         let hour = m[2];
         let minute = m[4];
         let second = m[6];
-        console.log(`time fragment: ${hour} hours, ${minute} minutes, ${second} seconds`);
         if (hour == null && minute == null && second == null) {
             return [null, null];
         }
         return [[hour, minute, second], m[0].length];
     } else {
-        console.log("no match - '" + string + "'");
         return [null, null];
     }
 }
