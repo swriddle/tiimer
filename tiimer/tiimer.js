@@ -23,6 +23,19 @@ function buttonClick() {
     console.log("click!");
 }
 
+function parseSeparator(string) {
+    console.log("parsing separator from string: **" + string + "**");
+    const separatorRegex = /^,/;
+    let m = separatorRegex.exec(string);
+    if (m) {
+        console.log("wait what it worked?");
+        return [true, 1];
+    } else {
+        console.log("no go!");
+        return [null, null];
+    }
+}
+
 function parseTime(string) {
     const timeRegex = /^((\d+)h)?((\d+)m)?((\d+)s)?/;
     let m = timeRegex.exec(string);
