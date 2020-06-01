@@ -67,6 +67,10 @@ function parseTime(string) {
 }
 
 function parse(string) {
+    if (string == "") {
+        disableButton();
+        return;
+    }
     const watchdog = 5;
     let watchdogTimer = 0;
     let parseStart = 0;
