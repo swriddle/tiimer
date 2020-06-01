@@ -71,6 +71,9 @@ function parse(string) {
         disableButton();
         return;
     }
+
+    let elements = [];
+
     const watchdog = 5;
     let watchdogTimer = 0;
     let parseStart = 0;
@@ -86,19 +89,35 @@ function parse(string) {
         if (result == "ambiguous") {
             console.log("ambiguous response");
             keepGoing = false;
+            disableButton();
         } else if (result == "not-found") {
             console.log("not-found response");
             keepGoing = false;
+            disableButton();
+        } else if (result == "fully-parsed") {
+            console.log("fully-parsed response; All done!");
+            keepGoing = false;
+            enableButton();
         } else {
-            console.log("normal handling");
+            console.log("Successfully parsed: " + operationName);
             console.log("result: " + JSON.stringify(result));
             parseStart += parseStartCandidate;
         }
+        elements.push([operationName]);
+    }
+
+    for (i = 0; i < elements.length - 1; i++) {
+        var opName;
+        [opName] = elements[i];
+        console.log((i + 1) + ". " + opName);
     }
 }
 
 function parseStep(string) {
-    let results = [["parseTime", parseTime(string)]];
+    if (string.length == 0) {
+        return ["fully-parsed", null, null]
+    }
+    let results = [["parseTime", parseTime(string)], ["parseSeparator", parseSeparator(string)]];
     var matchResult;
     var matchOperation;
     var matchConsumedCount;
@@ -112,23 +131,26 @@ function parseStep(string) {
         // matchOperation = operationName;
         let consumedCount = operationDetails[1];
         // matchConsumedCount = consumedCount;
+        console.log(`opName="${operationName}", matchResult="${matchResult}" consumedCount=${consumedCount}`);
 
         if (consumedCount != null) {
-            // console.log("consumedCount not null");
             if (foundResult) {
-                // console.log("definitely ambiguous");
-	        return ["ambiguous", null];
+                console.log("x1");
+	        return ["ambiguous", null, null];
             } else {
-                // console.log("found one result");
+                console.log("x33");
+                matchResult = operationDetails[0];
+                matchOperation = operationName;
+                matchConsumedCount = consumedCount;
                 foundResult = true;
             }
         }
     }
 
     if (!foundResult) {
-        return ["not-found", null];
+        return ["not-found", null, null];
     }
 
-    console.log(`Made it through with matchResult: ${JSON.stringify(matchResult)} for operation '${matchOperation}'`);
+    console.log("returning operation: " + matchOperation);
     return [matchResult, matchConsumedCount, matchOperation];
 }

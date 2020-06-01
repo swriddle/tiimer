@@ -32,10 +32,10 @@
 
   <!-- User JS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <script src="tiimer.js?nonce=27"></script>
+  <script src="tiimer.js?nonce=45"></script>
 
 </head>
-<body>
+<body onload="checkStartButtonStatus();">
 
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -51,7 +51,7 @@
         <label for="expr">Timing expression:</label>
         <input type="text" onkeyup="checkStartButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
 	</form>
-	<button id="start_button" class="button-primary">Start</button>
+	<button id="start_button" class="button-primary" onclick="buttonClick();">Start</button>
 	<div id="timer">
 	</div>
       </div>
