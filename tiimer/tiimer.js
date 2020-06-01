@@ -5,6 +5,19 @@ function checkStartButtonStatus() {
     parse(content);
 }
 
+function enableButton() {
+    button().classList.add("button-primary");
+    button().disabled = false;
+}
+
+function disableButton() {
+    button().classList.remove("button-primary");
+    button().disabled = true;
+}
+
+function button() {
+    return document.getElementById("start_button");
+}
 function parseTime(string) {
     const timeRegex = /^((\d+)h)?((\d+)m)?((\d+)s)?/;
     let m = timeRegex.exec(string);
