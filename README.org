@@ -7,3 +7,9 @@
 ** Attributions
 
    The favicon is from an image of a [[https://commons.wikimedia.org/wiki/File:Bahnsteiguhr.jpg][station clock]] available under CC-SA-2.5. It was modified with this [[https://favicon.io/][favicon generator tool]].
+
+   
+** Useful links
+
+   * [[https://jayconrod.com/posts/65/how-to-build-a-parser-by-hand][Writing a parser by hand]]
+   * [[https://github.com/dwyl/Javascript-the-Good-Parts-notes#chapter1][Javascript: The Good Bits summary]]

@@ -4,7 +4,18 @@ function checkStartButtonStatus() {
     let tokens = tokenize(content);
     var i;
 
-    parse(tokens);
+    try {
+        parse(tokens);
+        enableButton();
+    } catch(err) {
+        console.log("got error: " + err);
+        disableButton();
+    }
+}
+
+class ParseState {
+    function ParseState(
+        // TODO: continueHere
 }
 
 function parse(tokens) {
@@ -14,12 +25,14 @@ function parse(tokens) {
         console.log(`${i + 1}. ${opName} (details: ${JSON.stringify(result)})`);
     }
 
+    tokens = tokens.slice(0, tokens.length - 1);
     var newIndex, newTokens;
     [newTokens, newIndex] = parseTokens(tokens, 0);
     if (newIndex + 1 == tokens.length) {
         console.log("+ Got expected new index returned");
     } else {
-        console.log("- Unexpected new index returned: " + newIndex);
+        console.log("Got newIndex: " + newIndex + " and " + tokens.length + " tokens");
+        throw new Error("stuff-leftover");
     }
    console.log("-----" + JSON.stringify(newTokens));
 }
@@ -29,94 +42,68 @@ function parse(tokens) {
 // expr = expr "xNUM"
 // expr = timespec
 
-// class Parser {
-//     constructor(tokens) {
-//         this.tokens = tokens;
-//         this.index = 0;
-//     }
-
-//     parse() {
-//         if 
-//     }
-// }
-
-// expr = "(" + expr + ")"
-// expr = expr "," expr
-// expr = expr "xNUM"
-// expr = timespec
 // returns [parsedRepresentation, newStartIndex]
 function parseTokens(tokens, startIndex) {
-    console.log("1LP - " + JSON.stringify(tokens));
     let subTokens = tokens.slice(startIndex);
     var newIndex;
     var parsedRepresentation;
     var parsedRepresentation2;
     if (subTokens[0][0] == "parseTime") {
         let timeRepresentation = subTokens[0][0];
-        console.log("1LP: time: " + JSON.stringify(subTokens[0]));
-
-        // deal with separator, if present, after this time
-        console.log("checking for separator");
-        if (subTokens[1][0] == "parseSeparator") {
-            console.log("found separator");
-            [parsedPresentation, newIndex] = parseTokens(tokens, startIndex + 2);
-            return [[timeRepresentation].concat(parsedPresentation), newIndex];
-        // } else {
-        //     console.log("no separator");
-        }
-
-        // deal with cardinality, if present, after this time
-        else if (subTokens[1][0] == "parseRepetition") {
-            console.log("2LP: repetition: " + JSON.stringify(subTokens[1]));
-            let count = parseInt(subTokens[1][1], 10);
-            let representation = [];
-            var i;
-            for (i = 0; i < count; i++) {
-                representation.push(timeRepresentation);
-            }
-            return [representation, startIndex + 1];
-        } else {
-            console.log("next token not separator or repetition");
-            return [[timeRepresentation], startIndex + 1];
-        }
-    } else if (subTokens[0][0] == "parseGroupOpen") {
-        [parsedRepresentation, newIndex] = parseTokens(tokens, startIndex + 1);
-        console.log("about to check whether token at " + newIndex + " is close group");
-        if (tokens[newIndex][0] != "parseGroupClose") {
-            console.log("group not closed!");
-            return "group-not-closed";
-        } else {
-            newIndex += 1;
-            if (tokens[newIndex][0] == "parseSeparator") {
-                [parsedRepresentation2, newIndex] = parseTokens(tokens, newIndex + 1);
-                return [parsedRepresentation.concat(parsedPresentation2), newIndex];
-            }
-            else if (tokens[newIndex][0] == "parseRepetition") {
-                console.log("2LP': repetition: " + JSON.stringify(tokens[newIndex + 1]));
+        if (subTokens.length > 1) {
+            if (subTokens[1][0] == "parseSeparator") {
+                [parsedPresentation, newIndex] = parseTokens(tokens, startIndex + 2);
+                return [[timeRepresentation].concat(parsedPresentation), newIndex];
+            } else if (subTokens[1][0] == "parseRepetition") {
                 let count = parseInt(subTokens[1][1], 10);
                 let representation = [];
                 var i;
                 for (i = 0; i < count; i++) {
-                    representation = representation.concat(parsedRepresentation)
                     representation.push(timeRepresentation);
                 }
-                    return [representation, startIndex + 1];
-
+                return [representation, startIndex + 1];
+            } else {
+                return [[timeRepresentation], startIndex + 1];
             }
-            // deal with separator, if present, after this group
-            // TODO: deal with
-            // deal with cardinality, if present, after this time
-            // TODO: deal with
-            return newIndex + 1;
+        } else {
+            return [[timeRepresentation], startIndex + 1];
+        }
+    } else if (subTokens[0][0] == "parseGroupOpen") {
+        [parsedRepresentation, newIndex] = parseTokens(tokens, startIndex + 1);
+        if (tokens.length > newIndex) {
+            if (tokens[newIndex][0] != "parseGroupClose") {
+                throw new Error("group-not-closed");
+            } else {
+                newIndex += 1;
+                if (tokens[newIndex][0] == "parseSeparator") {
+                    [parsedRepresentation2, newIndex] = parseTokens(tokens, newIndex + 1);
+                    return [parsedRepresentation.concat(parsedPresentation2), newIndex];
+                }
+                else if (tokens[newIndex][0] == "parseRepetition") {
+                    let count = parseInt(subTokens[1][1], 10);
+                    let representation = [];
+                    var i;
+                    for (i = 0; i < count; i++) {
+                        representation = representation.concat(parsedRepresentation)
+                        representation.push(timeRepresentation);
+                    }
+                    return [representation, startIndex + 1];
+                }
+                return newIndex + 1;
+            }
+        } else {
+            throw new Error("not-long-enough");
         }
     } else if (subTokens[0][0] == "parseGroupClosed") {
-        console.log("didn't expect to see a group close there");
+        throw new Error("unexpected-token");
     } else if (subTokens[0][0] == "parseRepetition") {
-        console.log("didn't expect to see a repetition there");
+        throw new Error("unexpected-token");
     } else if (subTokens[0][0] == "parseSeparator") {
-        console.log("didn't expect to see a separator there");
+        throw new Error("unexpected-token");
     } else {
-        console.log("unexpected token type: " + JSON.stringify(subTokens[0]));
+        console.log("zeroth subtoken: " + JSON.stringify(subTokens[0]));
+        console.log("all subtokens: " + JSON.stringify(subTokens));
+        throw new Error("unexpected-token-type: " + JSON.stringify(subTokens[0][0]));
     }
 }
 
