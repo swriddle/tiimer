@@ -214,100 +214,6 @@ function checkStartButtonStatus() {
     // }
 }
 
-// class ParseState {
-//     function ParseState(
-//         // TODO: continueHere
-// }
-
-// function parse(tokens) {
-//     for (i = 0; i < tokens.length - 1; i++) {
-//         var opName;
-//         [opName, result] = tokens[i];
-//         console.log(`${i + 1}. ${opName} (details: ${JSON.stringify(result)})`);
-//     }
-
-//     tokens = tokens.slice(0, tokens.length - 1);
-//     var newIndex, newTokens;
-//     [newTokens, newIndex] = parseTokens(tokens, 0);
-//     if (newIndex + 1 == tokens.length) {
-//         console.log("+ Got expected new index returned");
-//     } else {
-//         console.log("Got newIndex: " + newIndex + " and " + tokens.length + " tokens");
-//         throw new Error("stuff-leftover");
-//     }
-//    console.log("-----" + JSON.stringify(newTokens));
-// }
-
-// // expr = "(" + expr + ")"
-// // expr = expr "," expr
-// // expr = expr "xNUM"
-// // expr = timespec
-
-// // returns [parsedRepresentation, newStartIndex]
-// function parseTokens(tokens, startIndex) {
-//     let subTokens = tokens.slice(startIndex);
-//     var newIndex;
-//     var parsedRepresentation;
-//     var parsedRepresentation2;
-//     if (subTokens[0][0] == "parseTime") {
-//         let timeRepresentation = subTokens[0][0];
-//         if (subTokens.length > 1) {
-//             if (subTokens[1][0] == "parseSeparator") {
-//                 [parsedPresentation, newIndex] = parseTokens(tokens, startIndex + 2);
-//                 return [[timeRepresentation].concat(parsedPresentation), newIndex];
-//             } else if (subTokens[1][0] == "parseRepetition") {
-//                 let count = parseInt(subTokens[1][1], 10);
-//                 let representation = [];
-//                 var i;
-//                 for (i = 0; i < count; i++) {
-//                     representation.push(timeRepresentation);
-//                 }
-//                 return [representation, startIndex + 1];
-//             } else {
-//                 return [[timeRepresentation], startIndex + 1];
-//             }
-//         } else {
-//             return [[timeRepresentation], startIndex + 1];
-//         }
-//     } else if (subTokens[0][0] == "parseGroupOpen") {
-//         [parsedRepresentation, newIndex] = parseTokens(tokens, startIndex + 1);
-//         if (tokens.length > newIndex) {
-//             if (tokens[newIndex][0] != "parseGroupClose") {
-//                 throw new Error("group-not-closed");
-//             } else {
-//                 newIndex += 1;
-//                 if (tokens[newIndex][0] == "parseSeparator") {
-//                     [parsedRepresentation2, newIndex] = parseTokens(tokens, newIndex + 1);
-//                     return [parsedRepresentation.concat(parsedPresentation2), newIndex];
-//                 }
-//                 else if (tokens[newIndex][0] == "parseRepetition") {
-//                     let count = parseInt(subTokens[1][1], 10);
-//                     let representation = [];
-//                     var i;
-//                     for (i = 0; i < count; i++) {
-//                         representation = representation.concat(parsedRepresentation)
-//                         representation.push(timeRepresentation);
-//                     }
-//                     return [representation, startIndex + 1];
-//                 }
-//                 return newIndex + 1;
-//             }
-//         } else {
-//             throw new Error("not-long-enough");
-//         }
-//     } else if (subTokens[0][0] == "parseGroupClosed") {
-//         throw new Error("unexpected-token");
-//     } else if (subTokens[0][0] == "parseRepetition") {
-//         throw new Error("unexpected-token");
-//     } else if (subTokens[0][0] == "parseSeparator") {
-//         throw new Error("unexpected-token");
-//     } else {
-//         console.log("zeroth subtoken: " + JSON.stringify(subTokens[0]));
-//         console.log("all subtokens: " + JSON.stringify(subTokens));
-//         throw new Error("unexpected-token-type: " + JSON.stringify(subTokens[0][0]));
-//     }
-// }
-
 function enableButton() {
     button().classList.add("button-primary");
     button().disabled = false;
@@ -326,77 +232,77 @@ function buttonClick() {
     console.log("click!");
 }
 
-function parseGroupOpen(string) {
-    const groupOpenRegex = /^\(/;
-    let m = groupOpenRegex.exec(string);
-    if (m) {
-        return [true, 1];
-    } else {
-        return [null, null];
-    }
-}
+// function parseGroupOpen(string) {
+//     const groupOpenRegex = /^\(/;
+//     let m = groupOpenRegex.exec(string);
+//     if (m) {
+//         return [true, 1];
+//     } else {
+//         return [null, null];
+//     }
+// }
 
-function parseGroupClose(string) {
-    const groupCloseRegex = /^\)/;
-    let m = groupCloseRegex.exec(string);
-    if (m) {
-        return [true, 1];
-    } else {
-        return [null, null];
-    }
-}
+// function parseGroupClose(string) {
+//     const groupCloseRegex = /^\)/;
+//     let m = groupCloseRegex.exec(string);
+//     if (m) {
+//         return [true, 1];
+//     } else {
+//         return [null, null];
+//     }
+// }
 
-function parseRepetition(string) {
-    const repetitionRegex = /^x(\d+)/;
-    let m = repetitionRegex.exec(string);
-    if (m) {
-        console.log(JSON.stringify(m));
-        return [m[1], m[0].length];
-    } else {
-        return [null, null];
-    }
-}
+// function parseRepetition(string) {
+//     const repetitionRegex = /^x(\d+)/;
+//     let m = repetitionRegex.exec(string);
+//     if (m) {
+//         console.log(JSON.stringify(m));
+//         return [m[1], m[0].length];
+//     } else {
+//         return [null, null];
+//     }
+// }
 
-function parseSeparator(string) {
-    const separatorRegex = /^,/;
-    let m = separatorRegex.exec(string);
-    if (m) {
-        return [true, 1];
-    } else {
-        return [null, null];
-    }
-}
+// function parseSeparator(string) {
+//     const separatorRegex = /^,/;
+//     let m = separatorRegex.exec(string);
+//     if (m) {
+//         return [true, 1];
+//     } else {
+//         return [null, null];
+//     }
+// }
 
-function parseTime(string) {
-    const timeRegex = /^((\d+)h)?((\d+)m)?((\d+)s)?/;
-    let m = timeRegex.exec(string);
-    if (m) {
-        let hour = m[2];
-        let minute = m[4];
-        let second = m[6];
-        if (hour == null && minute == null && second == null) {
-            return [null, null];
-        }
-        if (hour == null) {
-            hour = 0;
-        } else {
-            hour = parseInt(hour, 10);
-        }
-        if (minute == null) {
-            minute = 0;
-        } else {
-            minute = parseInt(minute, 10);
-        }
-        if (second == null) {
-            second = 0;
-        } else {
-            second = parseInt(second, 10);
-        }
-        return [[hour, minute, second], m[0].length];
-    } else {
-        return [null, null];
-    }
-}
+// function parseTime(string) {
+//     const timeRegex = /^((\d+)h)?((\d+)m)?((\d+)s)?/;
+//     let m = timeRegex.exec(string);
+//     if (m) {
+//         let hour = m[2];
+//         let minute = m[4];
+//         let second = m[6];
+//         if (hour == null && minute == null && second == null) {
+//             return [null, null];
+//         }
+//         if (hour == null) {
+//             hour = 0;
+//         } else {
+//             hour = parseInt(hour, 10);
+//         }
+//         if (minute == null) {
+//             minute = 0;
+//         } else {
+//             minute = parseInt(minute, 10);
+//         }
+//         if (second == null) {
+//             second = 0;
+//         } else {
+//             second = parseInt(second, 10);
+//         }
+//         return [[hour, minute, second], m[0].length];
+//     } else {
+//         return [null, null];
+//     }
+// }
 
 function tokenize(string) {
     if (string == "") {
