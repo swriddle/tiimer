@@ -345,12 +345,6 @@ function tokenize(string) {
     }
 
     return elements;
-
-    // for (i = 0; i < elements.length - 1; i++) {
-    //     var opName;
-    //     [opName, result] = elements[i];
-    //     console.log(`${i + 1}. ${opName} (details: ${JSON.stringify(result)})`);
-    // }
 }
 
 function parseStep(string) {
@@ -367,10 +361,8 @@ function parseStep(string) {
         let operationStuff = results[i];
         let operationName = operationStuff[0];
         let operationDetails = operationStuff[1];
-        // matchResult = operationDetails[0];
-        // matchOperation = operationName;
         let consumedCount = operationDetails[1];
-        // matchConsumedCount = consumedCount;
+
         console.log(`opName="${operationName}", matchResult="${matchResult}" consumedCount=${consumedCount}`);
 
         if (consumedCount != null) {
