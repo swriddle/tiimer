@@ -8,15 +8,6 @@ function createParseResult(state, value) {
     return parseResult;
 }
 
-// class ParseResult {
-//     var state;
-//     var value;
-//     constructor(state, value) {
-//         this.state = state;
-//         this.value = value;
-//     }
-// }
-
 function createParseState(tokens, id, pos=0) {
     console.log("tokens: =" + tokens + "=");
     console.log("id: =" + id + "=");
@@ -62,45 +53,6 @@ function createParseState(tokens, id, pos=0) {
     return parseState;
 }
 
-// class ParseState {
-//     var tokens;
-//     var pos;
-//     constructor(tokens, pos=0) {
-//         this.tokens = tokens;
-//         this.pos = pos;
-//     }
-//     atEnd() {
-//         return this.pos == this.tokens.length;
-//     }
-//     take() {
-//         if (this.atEnd()) {
-//             return null;
-//         }
-//         let next = new ParseState(this.tokens, this.pos + 1)
-//         let token = this.tokens[this.pos];
-//         return ParseResult(next, token);
-//     }
-
-//     expect(expectedTag) {
-//         let result = this.take();
-//         if (result == null || result.value.tag != expectedTag) {
-//             return null;
-//         } else {
-//             return result;
-//         }
-//     }
-
-//     peek() {
-//         if (this.atEnd()) {
-//             return null;
-//         } else {
-//             return this.tokens[this.pos].tag 
-//         }
-//     }
-// }
-
-// class TemplateParseException(Exception) {
-// }
 function TemplateParseError(message, metadata) {
     const error = new Error(message);
     error.metadata = metadata;
