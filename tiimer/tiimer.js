@@ -6,7 +6,7 @@ const grammar = require("./grammar.js");
 const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
 function nearleyParse(text) {
-    parser.feed("foo\n");
+    parser.feed(text);
     return parser.results;
 }
 
@@ -24,8 +24,6 @@ function checkStartButtonStatus() {
         disableButton();
     }
 }
-
-module.exports = {checkStartButtonStatus: checkStartButtonStatus}
 
 function enableButton() {
     button().classList.add("button-primary");
@@ -204,3 +202,4 @@ function parseTokenTime(string) {
     }
 }
 
+module.exports = {checkStartButtonStatus: checkStartButtonStatus, buttonClick: buttonClick}
