@@ -543,8 +543,12 @@ function checkStartButtonStatus() {
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
 
-    let response = nearleyParse(content);
-    console.log("Response: " + JSON.stringify(response));
+    try {
+        let response = nearleyParse(content);
+        console.log("Response: " + JSON.stringify(response));
+    } catch(error) {
+        console.log("Could not parse");
+    }
 }
 
 module.exports = {checkStartButtonStatus: checkStartButtonStatus}
