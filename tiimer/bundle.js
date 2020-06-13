@@ -44,9 +44,13 @@ const grammar = require("./grammar.js");
 const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
 // Parse something!
-parser.feed("foo\n");
 
-console.log(parser.results); // [[[[ "foo" ],"\n" ]]]
+try {
+    parser.feed("foo\n");
+    console.log(parser.results); // [[[[ "foo" ],"\n" ]]]
+} catch(error) {
+    console.log("could not parse");
+}
 
 },{"./grammar.js":1,"nearley":3}],3:[function(require,module,exports){
 (function(root, factory) {
