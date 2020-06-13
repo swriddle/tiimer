@@ -547,6 +547,8 @@ function checkStartButtonStatus() {
     console.log("Response: " + JSON.stringify(response));
 }
 
+module.exports = {checkStartButtonStatus: checkStartButtonStatus}
+
 function enableButton() {
     button().classList.add("button-primary");
     button().disabled = false;
