@@ -3,23 +3,33 @@
 const nearley = require("nearley");
 const grammar = require("./grammar.js");
 
-const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+// parses "1m30s" to: [[[null,[[["1"]],"m"],[[["3","0"]],"s"]],[]]]
 
 function nearleyParse(text) {
-    parser.feed(text);
-    return parser.results;
+    try {
+        let parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+        parser.feed(text);
+        if (parser.results.length == 0) {
+            return [false, null];
+        } else {
+            return [true, parser.results]
+        }
+    } catch(error) {
+        return [false, null];
+    }
 }
 
 function checkStartButtonStatus() {
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
+    var success, response;
 
-    try {
-        console.log("parsing: '" + content + "'");
-        let response = nearleyParse(content);
+    console.log("parsing: '" + content + "'");
+    [success, response] = nearleyParse(content);
+    if (success) {
         console.log("Response: " + JSON.stringify(response));
         enableButton();
-    } catch(error) {
+    } else {
         console.log("Could not parse");
         disableButton();
     }

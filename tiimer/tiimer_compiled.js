@@ -495,8 +495,31 @@ function id(x) { return x[0]; }
 var grammar = {
     Lexer: undefined,
     ParserRules: [
-    {"name": "expr$string$1", "symbols": [{"literal":"1"}, {"literal":"m"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "expr", "symbols": ["expr$string$1"]}
+    {"name": "expr$ebnf$1", "symbols": []},
+    {"name": "expr$ebnf$1$subexpression$1", "symbols": [{"literal":","}, "expr"]},
+    {"name": "expr$ebnf$1", "symbols": ["expr$ebnf$1", "expr$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "expr", "symbols": ["time", "expr$ebnf$1"]},
+    {"name": "expr$ebnf$2", "symbols": []},
+    {"name": "expr$ebnf$2$subexpression$1", "symbols": [{"literal":","}, "expr"]},
+    {"name": "expr$ebnf$2", "symbols": ["expr$ebnf$2", "expr$ebnf$2$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "expr", "symbols": [{"literal":"("}, "expr", {"literal":")"}, {"literal":"x"}, "number", "expr$ebnf$2"]},
+    {"name": "time$ebnf$1$subexpression$1", "symbols": ["number", {"literal":"h"}]},
+    {"name": "time$ebnf$1", "symbols": ["time$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "time$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "time$ebnf$2$subexpression$1", "symbols": ["number", {"literal":"m"}]},
+    {"name": "time$ebnf$2", "symbols": ["time$ebnf$2$subexpression$1"], "postprocess": id},
+    {"name": "time$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "time$ebnf$3$subexpression$1", "symbols": ["number", {"literal":"s"}]},
+    {"name": "time$ebnf$3", "symbols": ["time$ebnf$3$subexpression$1"], "postprocess": id},
+    {"name": "time$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "time", "symbols": ["time$ebnf$1", "time$ebnf$2", "time$ebnf$3"]},
+    {"name": "number$ebnf$1", "symbols": [/[0-9]/]},
+    {"name": "number$ebnf$1", "symbols": ["number$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "number", "symbols": ["number$ebnf$1"], "postprocess": 
+        function(data) {
+            return data[0].join("");
+        }
+        }
 ]
   , ParserStart: "expr"
 }
@@ -513,23 +536,33 @@ if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
 const nearley = require("nearley");
 const grammar = require("./grammar.js");
 
-const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+// parses "1m30s" to: [[[null,[[["1"]],"m"],[[["3","0"]],"s"]],[]]]
 
 function nearleyParse(text) {
-    parser.feed(text);
-    return parser.results;
+    try {
+        let parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+        parser.feed(text);
+        if (parser.results.length == 0) {
+            return [false, null];
+        } else {
+            return [true, parser.results]
+        }
+    } catch(error) {
+        return [false, null];
+    }
 }
 
 function checkStartButtonStatus() {
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
+    var success, response;
 
-    try {
-        console.log("parsing: '" + content + "'");
-        let response = nearleyParse(content);
+    console.log("parsing: '" + content + "'");
+    [success, response] = nearleyParse(content);
+    if (success) {
         console.log("Response: " + JSON.stringify(response));
         enableButton();
-    } catch(error) {
+    } else {
         console.log("Could not parse");
         disableButton();
     }
