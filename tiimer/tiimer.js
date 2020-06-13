@@ -15,10 +15,13 @@ function checkStartButtonStatus() {
     var content = exprElement.value;
 
     try {
+        console.log("parsing: '" + content + "'");
         let response = nearleyParse(content);
         console.log("Response: " + JSON.stringify(response));
+        enableButton();
     } catch(error) {
         console.log("Could not parse");
+        disableButton();
     }
 }
 
