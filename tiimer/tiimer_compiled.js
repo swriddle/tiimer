@@ -512,7 +512,11 @@ var grammar = {
     {"name": "time$ebnf$3$subexpression$1", "symbols": ["number", {"literal":"s"}]},
     {"name": "time$ebnf$3", "symbols": ["time$ebnf$3$subexpression$1"], "postprocess": id},
     {"name": "time$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "time", "symbols": ["time$ebnf$1", "time$ebnf$2", "time$ebnf$3"]},
+    {"name": "time", "symbols": ["time$ebnf$1", "time$ebnf$2", "time$ebnf$3"], "postprocess": 
+        function(data) {
+            console.log("binding: " + JSON.stringify(data));
+        }
+        },
     {"name": "number$ebnf$1", "symbols": [/[0-9]/]},
     {"name": "number$ebnf$1", "symbols": ["number$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "number", "symbols": ["number$ebnf$1"], "postprocess": 
