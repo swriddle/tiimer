@@ -4,6 +4,7 @@ expr ->
 time -> (number "h"):? (number "m"):? (number "s"):? {%
     function(data) {
         console.log("binding: " + JSON.stringify(data));
+        return "time";
     }
 %}
 number -> [0-9]:+ {%
