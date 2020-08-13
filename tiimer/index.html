@@ -47,10 +47,15 @@
 	  </div>
 	  
         <label for="expr">Timing expression:</label>
-        <input type="text" onkeyup="checkStartButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
+        <input type="text" onkeyup="checkButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
 	</form>
-	<button id="start_button" class="button-primary" onclick="buttonClick();">Start</button>
-	<div id="timer">
+	<button id="start_cancel_button" class="button-primary" onclick="startCancelButtonClick();">Start</button>
+	<button id="pause_resume_button" class="button-primary" onclick="pauseResumeButtonClick();">Pause</button>
+	<div id="timer_container">
+          <ul>
+            <li>Laps: <span id="laps">__ of __</span></li>
+            <li>Timer: <span id="timer">00:00:00</span></li>
+          </ul>
 	</div>
       </div>
       
@@ -100,6 +105,6 @@
       </div>
     </div>
   </div>
-  <script src="tiimer.js?nonce=33"></script>
+  <script src="tiimer.js?nonce=39"></script>
 </body>
 </html>

@@ -1,30 +1,109 @@
 "use strict";
 
-function checkStartButtonStatus() {
+function checkButtonStatus() {
     console.log("checking start button status");
-    return true;
+    var exprElement = document.getElementById("expr");
+    var content = exprElement.value;
+    if (parse(content).status == "success") {
+        enableStartCancelButton();
+        disablePauseResumeButton();
+    } else {
+        disableStartCancelButton();
+        disablePauseResumeButton();
+    }
+    // return true;
 }
 
-function enableButton() {
-    button().classList.add("button-primary");
-    button().disabled = false;
+function enableStartCancelButton() {
+    startCancelButton().classList.add("button-primary");
+    startCancelButton().disabled = false;
 }
 
-function disableButton() {
-    button().classList.remove("button-primary");
-    button().disabled = true;
+function disableStartCancelButton() {
+    startCancelButton().classList.remove("button-primary");
+    startCancelButton().disabled = true;
 }
 
-function button() {
-    return document.getElementById("start_button");
+function enablePauseResumeButton() {
+    pauseResumeButton().classList.add("button-primary");
+    pauseResumeButton().disabled = false;
 }
 
-function buttonClick() {
+function disablePauseResumeButton() {
+    pauseResumeButton().classList.remove("button-primary");
+    pauseResumeButton().disabled = true;
+}
+
+function startCancelButton() {
+    return document.getElementById("start_cancel_button");
+}
+
+function pauseResumeButton() {
+    return document.getElementById("pause_resume_button");
+}
+
+function formatTimer(duration) {
+    let hours = duration.hours.padStart(2, "0");
+    let minutes = duration.minutes.padStart(2, "0");
+    let seconds = duration.seconds.padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+function pauseResumeButtonClick() {
+    if (isTimerRunning()) {
+        pauseButtonClick();
+    } else {
+        resumeButtonClick();
+    }
+}
+
+function isTimerRunning() {
+    // TODO: implement
+}
+
+function pauseButtonClick() {
+    // TODO: implement
+}
+
+function resumeButtonClick() {
+    // TODO: implement
+}
+
+function startCancelButtonClick() {
+    if (isTimerRunning()) {
+        cancelButtonClick();
+    } else {
+        startButtonClick();
+    }
+}
+
+function cancelButtonClick() {
+    // TODO: implement
+}
+
+function startButtonClick() {
+    let lapsSpan = document.getElementById("laps");
+    let timerSpan = document.getElementById("timer");
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
     console.log(`Raw text box value: *${content}*`);
     let response = parse(content);
     console.log(`Parsed response: ${JSON.stringify(response)}`);
+    if (response.status != "success") {
+        console.log("shouldn't happen");
+        return;
+    }
+    let result = response.result;
+    lapsSpan.innerHTML = `1 of ${result.length}`;
+    timerSpan.innerHTML = formatTimer(result[0]);
+    startTimer(result);
+}
+
+function startTimer(laps) {
+    // set start/cancel button to cancel
+    // set pause/resume button to pause and enable
+    // disable input into text box
+    // TODO: implement
 }
 
 function Duration(hours, minutes, seconds) {
@@ -41,6 +120,10 @@ Duration.prototype.toString = function() {
 };
 
 Duration.prototype.json = function() {
+    let hoursNum = this.hours == null ? 0 : parseInt(this.hours, 10);
+    let minutesNum = this.minutes == null ? 0 : parseInt(this.minutes, 10);
+    let secondsNum = this.seconds == null ? 0 : parseInt(this.seconds, 10);
+    return [{hours: hoursNum, minutes: minutesNum, seconds: secondsNum}];
 };
 
 function ParenthesizedExpression(expr) {
@@ -52,11 +135,12 @@ ParenthesizedExpression.prototype.toString = function() {
 }
 
 ParenthesizedExpression.prototype.json = function() {
+    return this.expr.json();
 };
 
 function Repetition(expr, count) {
     this.expr = expr;
-    this.count = count;
+    this.count = parseInt(count, 10);
 }
 
 Repetition.prototype.toString = function() {
@@ -64,6 +148,13 @@ Repetition.prototype.toString = function() {
 }
 
 Repetition.prototype.json = function() {
+    let json = this.expr.json();
+    let concatenated = [];
+    var i;
+    for (i = 0; i < this.count; i++) {
+        concatenated = concatenated.concat(json);
+    }
+    return concatenated;
 };
 
 function Conjunction(lhs, rhs) {
@@ -76,6 +167,7 @@ Conjunction.prototype.toString = function() {
 }
 
 Conjunction.prototype.json = function() {
+    return this.lhs.json().concat(this.rhs.json());
 };
 
 function parseLeftParen(tokens) {
@@ -232,11 +324,16 @@ function tokenize(expr) {
 function parse(expressionString) {
     let tokens = tokenize(expressionString);
     if (tokens) {
-        let [tokensLeft, result] = parseExpression(tokens);
-        if (tokensLeft.length == 0) {
-            return {status: "success", result: result.json()};
+        let resultTuple = parseExpression(tokens);
+        if (resultTuple) {
+            let [tokensLeft, result] = resultTuple;
+            if (tokensLeft.length == 0) {
+                return {status: "success", result: result.json()};
+            } else {
+                return {status: "tokens-left"};
+            }
         } else {
-            return {status: "tokens-left"};
+            return {status: "cannot-parse"};
         }
     } else {
         return {status: "cannot-tokenize"}
