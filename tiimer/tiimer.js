@@ -430,7 +430,6 @@ function parseRepetition(tokens) {
 }
 
 function performDaTest() {
-    // let tokens = tokenize("(1m30s)x4,1h");
     let tokens = tokenize("(1h2m3s)x4,8m");
     let [tokensLeft, response] = parseExpressionTopLevel(tokens);
     if (tokensLeft.length > 0) {
@@ -506,17 +505,13 @@ function parseExpressionTopLevel(tokens) {
     return parseExpression(tokens, "");
 }
 
-function prefixPrint(prefix, string) {
-    console.log(prefix + string);
-}
-
 // all parse_* functions take a list or tuple (iterable) of tokens and
 // return [list of remaining tokens, parsed_value], where the list of remaining
 // tokens is a subset of the input list (with some elements removed
 // from the start of the list being the only difference), and the
 // meaning of parsed_value will be dependent on what you're parsing.
 
-function parseExpression(tokens, prefix) {
+function parseExpression(tokens) {
     var parenCase;
     var numberCase;
     var numberValue;
@@ -533,53 +528,30 @@ function parseExpression(tokens, prefix) {
     var repetitionCase, conjunctionCase;
     var numberMatch;
 
-    prefixPrint(prefix, "tart")
     if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.count)) {
         return null;
     }
     
-    prefixPrint(prefix, `tokens at start of parse is: ${JSON.stringify(tokens)}`);
-  
-    prefixPrint(prefix, "1");
     parenCase = parseLeftParen(tokens);
-    prefixPrint(prefix, "2");
-    prefixPrint(prefix, "3");
     numberCase = parseNumber(tokens);
-    prefixPrint(prefix, "4");
-    prefixPrint(prefix, "5");
-    prefixPrint(prefix, `5.5 - parenCase: ${parenCase}, numberCase: ${numberCase}`);
     if (parenCase) {
-        prefixPrint(prefix, "6");
         [tokens, repr] = parenCase;
-        prefixPrint(prefix, `7, tokens is now: ${JSON.stringify(tokens)}`);
-        exprCase = parseExpression(tokens, `${prefix}  `);
-        prefixPrint(prefix, "8");
+        exprCase = parseExpression(tokens);
         if (exprCase) {
-            prefixPrint(prefix, "9");
             [tokens, exprRepr] = exprCase;
-            prefixPrint(prefix, `10: tokens is now - ${tokens.inspect}`);
             closeParenCase = parseRightParen(tokens);
-            prefixPrint(prefix, "11");
             if (closeParenCase) {
-                prefixPrint(prefix, "12");
                 [tokens, repr] = closeParenCase;
-                prefixPrint(prefix, `13=tokens is now :: ${tokens.inspect}`);
                 lhs = new ParenthesizedExpression(exprRepr);
-                prefixPrint(prefix, "set lhs parenthesized");
             } else {
-                prefixPrint(prefix, "14");
                 return null;
             }
         } else {
-            prefixPrint(prefix, "15");
             return null;
         }
-        prefixPrint(prefix, "16");
     } else if (numberCase) {
         // parse entire duration here...don't let it go 'til you've got the whole thing
-        prefixPrint(prefix, "23");
         [tokens, repr] = numberCase;
-        prefixPrint(prefix, `adding ${repr} leaving tokens: ${JSON.stringify(tokens)}`);
         number = repr;
         hourCase = parseHour(tokens);
         minuteCase = parseMinute(tokens);
@@ -647,74 +619,44 @@ function parseExpression(tokens, prefix) {
             return null;
         }
 
-        prefixPrint(prefix, "set lhs tag");
     } else {
-        prefixPrint(prefix, "24");
         console.log("error!");
         return null;
     }
   
-    prefixPrint(prefix, "25");
   
     repetitionCase = parseRepetition(tokens);
     conjunctionCase = parseConjunction(tokens);
   
-    prefixPrint(prefix, "lhs: #{lhs}")
     if (!repetitionCase && !conjunctionCase) {
         return [tokens, lhs];
     }
   
     while (repetitionCase || conjunctionCase) {
-        prefixPrint(prefix, "28");
-        prefixPrint(prefix, "c || d");
         if (repetitionCase) {
-            prefixPrint(prefix, "29");
-            prefixPrint(prefix, "dis");
             [tokens, repr] = repetitionCase;
-            prefixPrint(prefix, `t: ${JSON.stringify(tokens)}, r: ${repr}`);
-            prefixPrint(prefix, "30");
             numberMatch = parseNumber(tokens);
-            //expr_match = parseExpression(tokens, `${prefix}  `);
-            //prefixPrint(prefix, `raw expr_match: ${JSON.stringify(expr_match)}`);
-            prefixPrint(prefix, "31");
             if (numberMatch) {
-                prefixPrint(prefix, "32");
                 [tokens, repr] = numberMatch;
                 numberValue = repr;
-                prefixPrint(prefix, `got interior expr: ${repr} leaving tokens: ${JSON.stringify(tokens)}`);
                 lhs = new Repetition(lhs, numberValue);
-                prefixPrint(prefix, "set lhs disjunct");
             } else {
-                prefixPrint(prefix, "33");
                 return null;
             }
         } else if (conjunctionCase) {
-            prefixPrint(prefix, "34");
-            prefixPrint(prefix, "con");
             [tokens, repr] = conjunctionCase;
-            prefixPrint(prefix, "35")
-            exprMatch = parseExpression(tokens, `${prefix}  `);
-            prefixPrint(prefix, "36");
+            exprMatch = parseExpression(tokens);
             if (exprMatch) {
-                prefixPrint(prefix, "37");
                 [tokens, repr] = exprMatch;
-                prefixPrint(prefix, `q: ${JSON.stringify(tokens)}, t: ${repr}`);
-                prefixPrint(prefix, "38");
                 lhs = new Conjunction(lhs, repr);
-                prefixPrint(prefix, "set lhs conjunct");
             } else {
-                prefixPrint(prefix, "39");
                 return null;
             }
         }
     
-        prefixPrint(prefix, `40: tokens: ${JSON.stringify(tokens)}`);
         repetitionCase = parseRepetition(tokens);
-        prefixPrint(prefix, "41");
         conjunctionCase = parseConjunction(tokens);
-        prefixPrint(prefix, "42");
     }
-    prefixPrint(prefix, "43");
     return [tokens, lhs];
 }
 
