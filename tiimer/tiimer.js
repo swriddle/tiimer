@@ -1,5 +1,36 @@
 "use strict";
 
+/*
+states:
+
+- unset
+- running
+- finished
+- paused
+
+- starts in state: unset
+
+- unset:
+  startCancelButton: set to start, enabled iff text value parses
+  pauseResumeButton: disabled with label "-"
+  textField: enabled
+  
+- running:
+  startCancelButton: set to cancel, enabled
+  pauseResumeButton: enabled, set to pause
+  textField: disabled
+
+- finished:
+  startCancelButton: set to start, enabled iff text value parses
+  pauseResumeButton: disabled with label "-"
+  textField: enabled
+
+- paused:
+  startCancelButton: set to cancel, enabled
+  pauseResumeButton: enabled, set to resume
+  textField: disabled
+*/
+
 function checkButtonStatus() {
     console.log("checking start button status");
     var exprElement = document.getElementById("expr");
@@ -102,10 +133,6 @@ function resumeButtonClick() {
     // start the timer from last position
     // change the role of pause/resume button to resume
 }
-
-/*
-
-*/
 
 // braindump - just need to make sure that unless a timer is completely empty of context that the cancel option remains available - same with when the text field should be made modifiable
 function startCancelButtonClick() {
