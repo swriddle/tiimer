@@ -24,6 +24,8 @@ function nearleyParse(text) {
 */
 
 function checkStartButtonStatus() {
+    return false;
+    /*
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
     var success, response;
@@ -37,6 +39,7 @@ function checkStartButtonStatus() {
         console.log("Could not parse");
         disableButton();
     }
+    */
 }
 
 function enableButton() {
@@ -220,7 +223,6 @@ function parseTokenTime(string) {
 }
 */
 
-module.exports = {checkStartButtonStatus: checkStartButtonStatus, buttonClick: buttonClick}
 
 function Duration(hours, minutes, seconds) {
     this.hours = hours;
@@ -232,7 +234,7 @@ Duration.prototype.toString = function() {
     let hourString = this.hours == null ? "0" : this.hours;
     let minuteString = this.minutes == null ? "0" : this.minutes;
     let secondString = this.seconds == null ? "0" : this.seconds;
-    return hourString + "H " + minuteString + "M " + secondString + "S";
+    return `Duration(${hourString}H${minuteString}M${secondString}S)`;
 }
 
 /*
@@ -317,7 +319,7 @@ function Conjunction(lhs, rhs) {
 }
 
 Conjunction.prototype.toString = function() {
-    return this.lhs + " , " + this.rhs;
+    return `Conjunction(${this.lhs}, ${this.rhs})`;
 }
 
 /*
@@ -333,57 +335,91 @@ class Conjunction
 end
 */
 
-def parse_left_paren(tokens)
-    return nil if tokens.empty?
-    return nil unless tokens[0][0] == :left_paren
+function parseLeftParen(tokens) {
+    console.log("parse left paren");
+    console.log("is array?: " + Array.isArray(tokens));
+    console.log("length: " + tokens.length);
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
+        return null;
+    }
+    console.log("stuff is left");
+    console.log("tokens[0]: " + JSON.stringify(tokens[0]));
+    if (tokens[0][0] == "left_paren") {
+        return [tokens.slice(1), "left_paren"];
+    } else {
+        return null;
+    }
+}
 
-    [tokens[1..], :left_paren]
-end
+function parseRightParen(tokens) {
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
+        return null;
+    }
+    if (tokens[0][0] == "right_paren") {
+        return [tokens.slice(1), "right_paren"];
+    } else {
+        return null;
+    }
+}
 
-def parse_right_paren(tokens)
-    return nil if tokens.empty?
-    return nil unless tokens[0][0] == :right_paren
+function parseHour(tokens) {
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
+        return null;
+    }
+    if (tokens[0][0] == "hour") {
+        return [tokens.slice(1), "hour"];
+    } else {
+        return null;
+    }
+}
 
-    [tokens[1..], :right_paren]
-end
+function parseMinute(tokens) {
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
+        return null;
+    }
+    if (tokens[0][0] == "minute") {
+        return [tokens.slice(1), "minute"];
+    } else {
+        return null;
+    }
+}
 
-def parse_hour(tokens)
-    return nil if tokens.empty?
-    return nil unless tokens[0][0] == :hour
+function parseSecond(tokens) {
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
+        return null;
+    }
+    if (tokens[0][0] == "second") {
+        return [tokens.slice(1), "second"];
+    } else {
+        return null;
+    }
+}
 
-    [tokens[1..], :hour]
-end
+function parseNumber(tokens) {
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
+        return null;
+    }
+    if (tokens[0][0] == "number") {
+        console.log("XXXXX: " + tokens[0][1]);
+        return [tokens.slice(1), tokens[0][1]];
+    } else {
+        return null;
+    }
+}
 
-def parse_minute(tokens)
-    return nil if tokens.empty?
-    return nil unless tokens[0][0] == :minute
-
-    [tokens[1..], :minute]
-end
-
-def parse_second(tokens)
-    return nil if tokens.empty?
-    return nil unless tokens[0][0] == :second
-
-    [tokens[1..], :second]
-end
-
-def parse_number(tokens)
-  return nil if tokens.empty?
-  return nil unless tokens[0][0] == :number
-
-  [tokens[1..], tokens[0][1]]
-end
-
-def parse_conjunction(tokens)
-    return nil if tokens.empty?
-    return nil unless tokens[0][0] == :conjunction
-
-    [tokens[1..], :conjunction]
-end
+function parseConjunction(tokens) {
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
+        return null;
+    }
+    if (tokens[0][0] == "conjunction") {
+        return [tokens.slice(1), "conjunction"];
+    } else {
+        return null;
+    }
+}
 
 function parseRepetition(tokens) {
-    if (!Array.isArray() || (Array.isArray(tokens) && tokens.length)) {
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
         return null;
     }
     if (tokens[0][0] == "times") {
@@ -393,76 +429,86 @@ function parseRepetition(tokens) {
     }
 }
 
+function performDaTest() {
+    // let tokens = tokenize("(1m30s)x4,1h");
+    let tokens = tokenize("(1h2m3s)x4,8m");
+    let [tokensLeft, response] = parseExpressionTopLevel(tokens);
+    if (tokensLeft.length > 0) {
+        console.log("tokens left!");
+    }
+    console.log("Response: " + response);
+}
+
 function tokenize(expr) {
-    # gobble any whitespace
-    last_value = nil
-    tokens = []
-    while true
-        expr = expr.strip
-        if last_value == expr
-            puts "quiescence detected"
-            return
-        end
-        if expr == ""
-            break
-        end
-        last_value = expr
+    // gobble any whitespace
+    var lastValue = null;
+    var tokens = [];
+    while (true) {
+        expr = expr.trim();
+        if (lastValue == expr) {
+            console.log("quiescence detected");
+            return;
+        }
+        if (expr == "") {
+            break;
+        }
+        lastValue = expr;
 
-        if expr.start_with?("(")
-            # add left paren token to list
-            expr = expr[1..]
-            tokens << [:left_paren, nil]
-            next
-        end
-        if expr.start_with?(")")
-            # add right paren token to list
-            expr = expr[1..]
-            tokens << [:right_paren, nil]
-            next
-        end
-        if expr.start_with?(",")
-            # add conjunction token to list
-            expr = expr[1..]
-            tokens << [:conjunction, nil]
-            next
-        end
-        if expr.start_with?("x")
-            expr = expr[1..]
-            tokens << [:times, nil]
-            next
-        end
-        if expr.start_with?("h")
-            expr = expr[1..]
-            tokens << [:hour, nil]
-            next
-        end
-        if expr.start_with?("m")
-            expr = expr[1..]
-            tokens << [:minute, nil]
-            next
-        end
-        if expr.start_with?("s")
-            expr = expr[1..]
-            tokens << [:second, nil]
-            next
-        end
-        m = /^([0-9]+)/.match(expr)
-        if m
-            number = m[0]
-            expr = expr[number.length..]
-            tokens << [:number, number]
-        end
-    end
-    tokens
-end
+        if (expr.startsWith("(")) {
+            // add left paren token to list
+            expr = expr.slice(1);
+            tokens.push(["left_paren", null]);
+            continue;
+        }
+        if (expr.startsWith(")")) {
+            // add right paren token to list
+            expr = expr.slice(1);
+            tokens.push(["right_paren", null]);
+            continue;
+        }
+        if (expr.startsWith(",")) {
+            // add conjunction token to list
+            expr = expr.slice(1);
+            tokens.push(["conjunction", null]);
+            continue;
+        }
+        if (expr.startsWith("x")) {
+            expr = expr.slice(1);
+            tokens.push(["times", null]);
+            continue;
+        }
+        if (expr.startsWith("h")) {
+            expr = expr.slice(1);
+            tokens.push(["hour", null]);
+            continue;
+        }
+        if (expr.startsWith("m")) {
+            expr = expr.slice(1);
+            tokens.push(["minute", null]);
+            continue;
+        }
+        if (expr.startsWith("s")) {
+            expr = expr.slice(1);
+            tokens.push(["second", null]);
+            continue;
+        }
+        let m = expr.match(/^([0-9]+)/);
+        if (m) {
+            let number = m[0];
+            expr = expr.slice(number.length);
+            tokens.push(["number", number]);
+        }
+    }
+    return tokens;
+}
 
-def parse_expression_top_level(tokens)
-    parse_expression(tokens, "")
-end
+function parseExpressionTopLevel(tokens) {
+    return parseExpression(tokens, "");
+}
 
-def prefix_print(prefix, string)
-    puts "#{prefix}#{string}"
-end
+function prefixPrint(prefix, string) {
+    console.log(prefix + string);
+}
 
 // all parse_* functions take a list or tuple (iterable) of tokens and
 // return [list of remaining tokens, parsed_value], where the list of remaining
@@ -470,195 +516,206 @@ end
 // from the start of the list being the only difference), and the
 // meaning of parsed_value will be dependent on what you're parsing.
 
-def parse_expression(tokens, prefix)
-    prefix_print(prefix, "tart")
-    return nil if tokens.empty?
-    
-    prefix_print(prefix, "tokens at start of parse is: #{tokens.inspect}")
-  
-    puts "parsing top level"
-  
-    prefix_print(prefix, "1")
-    paren_case = parse_left_paren(tokens)
-    prefix_print(prefix, "2")
-    prefix_print(prefix, "3")
-    number_case = parse_number(tokens)
-    prefix_print(prefix, "4")
-    prefix_print(prefix, "5")
-    if paren_case
-        prefix_print(prefix, "6")
-        tokens, repr = paren_case
-        prefix_print(prefix, "7, tokens is now: #{tokens.inspect}")
-        expr_case = parse_expression(tokens, "#{prefix}  ")
-        prefix_print(prefix, "8")
-        if expr_case
-            prefix_print(prefix, "9")
-            tokens, expr_repr = expr_case
-            prefix_print(prefix, "10: tokens is now - #{tokens.inspect}")
-            close_paren_case = parse_right_paren(tokens)
-            prefix_print(prefix, "11")
-            if close_paren_case
-                prefix_print(prefix, "12")
-                tokens, repr = close_paren_case
-                prefix_print(prefix, "13=tokens is now :: #{tokens.inspect}")
-                lhs = ParenthesizedExpression.new(expr_repr)
-                prefix_print(prefix, "set lhs parenthesized")
-            else
-                prefix_print(prefix, "14")
-                return nil
-            end
-        else
-            prefix_print(prefix, "15")
-            return nil
-        end
-        prefix_print(prefix, "16")
-    elsif number_case
-        # parse entire duration here...don't let it go 'til you've got the whole thing
-        prefix_print(prefix, "23")
-        tokens, repr = number_case
-        prefix_print(prefix, "adding #{repr} leaving tokens: #{tokens.inspect}")
-        # return [tokens, Tag(repr)]
-        # lhs = Number.new(repr)
-        number = repr
-        hour_case = parse_hour(tokens)
-        minute_case = parse_minute(tokens)
-        second_case = parse_second(tokens)
-        if hour_case
-            hour_value = number
-            tokens, repr = hour_case
-            number_case = parse_number(tokens)
-            if number_case
-                tokens, repr = number_case
-                number_value = repr
-                # see about minute and second
-                minute_case = parse_minute(tokens)
-                second_case = parse_second(tokens)
-                if minute_case
-                    minute_value = number_value
-                    tokens, repr = minute_case
-                    number_case = parse_number(tokens)
-                    if number_case
-                        tokens, repr = number_case
-                        number_value = repr
-                        # number_value is number of seconds
-                        second_case = parse_second(tokens)
-                        if second_case
-                            tokens, repr = second_case
-                            second_value = number_value
-                            lhs = Duration.new(hour_value, minute_value, second_value)
-                        else
-                            return nil
-                        end
-                    else
-                        lhs = Duration.new(hour_value, minute_value, nil)
-                    end
-                elsif second_case
-                    tokens, repr = second_case
-                    second_value = number_value
-                    #number_case = parse_number(tokens)
-                    lhs = Duration.new(hour_value, nil, second_value)
-                end
-            else
-                lhs = Duration.new(hour_value, nil, nil)
-            end
-        elsif minute_case
-            minute_value = number
-            tokens, expr = minute_case
-            number_case = parse_number(tokens)
-            if number_case
-                tokens, repr = number_case
-                number_value = repr
-                second_case = parse_second(tokens)
-                if second_case
-                    tokens, repr = second_case
-                    second_value = number_value
-                    lhs = Duration.new(nil, minute_value, second_value)
-                else
-                    return nil
-                end
-            else
-                lhs = Duration.new(nil, minute_value, nil)
-            end
-        elsif second_case
-            second_value = number
-            tokens, repr = second_case
-            lhs = Duration.new(nil, nil, second_value)
-            # TODO: Just seconds
-        else
-            return nil
-        end
+function parseExpression(tokens, prefix) {
+    var parenCase;
+    var numberCase;
+    var numberValue;
+    var exprCase;
+    var tokens;
+    var repr;
+    var exprRepr;
+    var exprMatch;
+    var closeParenCase;
+    var lhs = null;
+    var number;
+    var hourCase, minuteCase, secondCase;
+    var hourValue, minuteValue, secondValue;
+    var repetitionCase, conjunctionCase;
+    var numberMatch;
 
-        prefix_print(prefix, "set lhs tag")
-    else
-        prefix_print(prefix, "24")
-        puts "error!"
-        return nil
-    end
-  
-    prefix_print(prefix, "25")
-  
-    repetition_case = parse_repetition(tokens)
-    conjunction_case = parse_conjunction(tokens)
-  
-    # disjunction_case = parse_disjunction(tokens)
-    # prefix_print(prefix, "26")
-    # conjunction_case = parse_conjunction(tokens)
-    # prefix_print(prefix, "27")
-  
-    prefix_print(prefix, "lhs: #{lhs}")
-    return [tokens, lhs] unless repetition_case || conjunction_case
-  
-    while repetition_case || conjunction_case
-        prefix_print(prefix, "28")
-        prefix_print(prefix, "c || d")
-        if repetition_case
-            prefix_print(prefix, "29")
-            prefix_print(prefix, "dis")
-            tokens, repr = repetition_case
-            prefix_print(prefix, "t: #{tokens.inspect}, r: #{repr}")
-            prefix_print(prefix, "30")
-            number_match = parse_number(tokens)
-            #expr_match = parse_expression(tokens, "#{prefix}  ")
-            #prefix_print(prefix, "raw expr_match: #{expr_match.inspect}")
-            prefix_print(prefix, "31")
-            if number_match
-                prefix_print(prefix, "32")
-                tokens, repr = number_match
-                number_value = repr
-                prefix_print(prefix, "got interior expr: #{repr} leaving tokens: #{tokens.inspect}")
-                lhs = Repetition.new(lhs, number_value)
-                prefix_print(prefix, "set lhs disjunct")
-            else
-                prefix_print(prefix, "33")
-                return nil
-            end
-        elsif conjunction_case
-            prefix_print(prefix, "34")
-            prefix_print(prefix, "con")
-            tokens, repr = conjunction_case
-            prefix_print(prefix, "35")
-            expr_match = parse_expression(tokens, "#{prefix}  ")
-            prefix_print(prefix, "36")
-            if expr_match
-                prefix_print(prefix, "37")
-                tokens, repr = expr_match
-                prefix_print(prefix, "q: #{tokens.inspect}, t: #{repr}")
-                prefix_print(prefix, "38")
-                lhs = Conjunction.new(lhs, repr)
-                prefix_print(prefix, "set lhs conjunct")
-            else
-                prefix_print(prefix, "39")
-                return nil
-            end
-        end
+    prefixPrint(prefix, "tart")
+    if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.count)) {
+        return null;
+    }
     
-        prefix_print(prefix, "40: tokens: #{tokens.inspect}")
-        repetition_case = parse_repetition(tokens)
-        prefix_print(prefix, "41")
-        conjunction_case = parse_conjunction(tokens)
-        prefix_print(prefix, "42")
-    end
-    prefix_print(prefix, "43")
-    [tokens, lhs]
-end
+    prefixPrint(prefix, `tokens at start of parse is: ${JSON.stringify(tokens)}`);
+  
+    prefixPrint(prefix, "1");
+    parenCase = parseLeftParen(tokens);
+    prefixPrint(prefix, "2");
+    prefixPrint(prefix, "3");
+    numberCase = parseNumber(tokens);
+    prefixPrint(prefix, "4");
+    prefixPrint(prefix, "5");
+    prefixPrint(prefix, `5.5 - parenCase: ${parenCase}, numberCase: ${numberCase}`);
+    if (parenCase) {
+        prefixPrint(prefix, "6");
+        [tokens, repr] = parenCase;
+        prefixPrint(prefix, `7, tokens is now: ${JSON.stringify(tokens)}`);
+        exprCase = parseExpression(tokens, `${prefix}  `);
+        prefixPrint(prefix, "8");
+        if (exprCase) {
+            prefixPrint(prefix, "9");
+            [tokens, exprRepr] = exprCase;
+            prefixPrint(prefix, `10: tokens is now - ${tokens.inspect}`);
+            closeParenCase = parseRightParen(tokens);
+            prefixPrint(prefix, "11");
+            if (closeParenCase) {
+                prefixPrint(prefix, "12");
+                [tokens, repr] = closeParenCase;
+                prefixPrint(prefix, `13=tokens is now :: ${tokens.inspect}`);
+                lhs = new ParenthesizedExpression(exprRepr);
+                prefixPrint(prefix, "set lhs parenthesized");
+            } else {
+                prefixPrint(prefix, "14");
+                return null;
+            }
+        } else {
+            prefixPrint(prefix, "15");
+            return null;
+        }
+        prefixPrint(prefix, "16");
+    } else if (numberCase) {
+        // parse entire duration here...don't let it go 'til you've got the whole thing
+        prefixPrint(prefix, "23");
+        [tokens, repr] = numberCase;
+        prefixPrint(prefix, `adding ${repr} leaving tokens: ${JSON.stringify(tokens)}`);
+        number = repr;
+        hourCase = parseHour(tokens);
+        minuteCase = parseMinute(tokens);
+        secondCase = parseSecond(tokens);
+        if (hourCase) {
+            hourValue = number;
+            [tokens, repr] = hourCase;
+            numberCase = parseNumber(tokens);
+            if (numberCase) {
+                [tokens, repr] = numberCase;
+                numberValue = repr;
+                // see about minute and second
+                minuteCase = parseMinute(tokens);
+                secondCase = parseSecond(tokens);
+                if (minuteCase) {
+                    minuteValue = numberValue;
+                    [tokens, repr] = minuteCase;
+                    numberCase = parseNumber(tokens);
+                    if (numberCase) {
+                        [tokens, repr] = numberCase;
+                        numberValue = repr;
+                        // number_value is number of seconds
+                        secondCase = parseSecond(tokens);
+                        if (secondCase) {
+                            [tokens, repr] = secondCase;
+                            secondValue = numberValue;
+                            lhs = new Duration(hourValue, minuteValue, secondValue);
+                        } else {
+                            return null;
+                        }
+                    } else {
+                        lhs = new Duration(hourValue, minuteValue, null);
+                    }
+                } else if (second_case) {
+                    [tokens, repr] = secondCase;
+                    secondValue = numberValue;
+                    lhs = new Duration(hourValue, null, secondValue);
+                }
+            } else {
+                lhs = new Duration(hourValue, null, null);
+            }
+        } else if (minuteCase) {
+            minuteValue = number;
+            [tokens, expr] = minuteCase;
+            numberCase = parseNumber(tokens);
+            if (numberCase) {
+                [tokens, repr] = numberCase;
+                numberValue = repr;
+                secondCase = parseSecond(tokens);
+                if (secondCase) {
+                    [tokens, repr] = secondCase;
+                    secondValue = numberValue;
+                    lhs = new Duration(null, minuteValue, secondValue);
+                } else {
+                    return null;
+                }
+            } else {
+                lhs = new Duration(null, minuteValue, null)
+            }
+        } else if (secondCase) {
+            secondValue = number;
+            [tokens, repr] = secondCase;
+            lhs = new Duration(null, null, secondValue);
+        } else {
+            return null;
+        }
 
+        prefixPrint(prefix, "set lhs tag");
+    } else {
+        prefixPrint(prefix, "24");
+        console.log("error!");
+        return null;
+    }
+  
+    prefixPrint(prefix, "25");
+  
+    repetitionCase = parseRepetition(tokens);
+    conjunctionCase = parseConjunction(tokens);
+  
+    prefixPrint(prefix, "lhs: #{lhs}")
+    if (!repetitionCase && !conjunctionCase) {
+        return [tokens, lhs];
+    }
+  
+    while (repetitionCase || conjunctionCase) {
+        prefixPrint(prefix, "28");
+        prefixPrint(prefix, "c || d");
+        if (repetitionCase) {
+            prefixPrint(prefix, "29");
+            prefixPrint(prefix, "dis");
+            [tokens, repr] = repetitionCase;
+            prefixPrint(prefix, `t: ${JSON.stringify(tokens)}, r: ${repr}`);
+            prefixPrint(prefix, "30");
+            numberMatch = parseNumber(tokens);
+            //expr_match = parseExpression(tokens, `${prefix}  `);
+            //prefixPrint(prefix, `raw expr_match: ${JSON.stringify(expr_match)}`);
+            prefixPrint(prefix, "31");
+            if (numberMatch) {
+                prefixPrint(prefix, "32");
+                [tokens, repr] = numberMatch;
+                numberValue = repr;
+                prefixPrint(prefix, `got interior expr: ${repr} leaving tokens: ${JSON.stringify(tokens)}`);
+                lhs = new Repetition(lhs, numberValue);
+                prefixPrint(prefix, "set lhs disjunct");
+            } else {
+                prefixPrint(prefix, "33");
+                return null;
+            }
+        } else if (conjunctionCase) {
+            prefixPrint(prefix, "34");
+            prefixPrint(prefix, "con");
+            [tokens, repr] = conjunctionCase;
+            prefixPrint(prefix, "35")
+            exprMatch = parseExpression(tokens, `${prefix}  `);
+            prefixPrint(prefix, "36");
+            if (exprMatch) {
+                prefixPrint(prefix, "37");
+                [tokens, repr] = exprMatch;
+                prefixPrint(prefix, `q: ${JSON.stringify(tokens)}, t: ${repr}`);
+                prefixPrint(prefix, "38");
+                lhs = new Conjunction(lhs, repr);
+                prefixPrint(prefix, "set lhs conjunct");
+            } else {
+                prefixPrint(prefix, "39");
+                return null;
+            }
+        }
+    
+        prefixPrint(prefix, `40: tokens: ${JSON.stringify(tokens)}`);
+        repetitionCase = parseRepetition(tokens);
+        prefixPrint(prefix, "41");
+        conjunctionCase = parseConjunction(tokens);
+        prefixPrint(prefix, "42");
+    }
+    prefixPrint(prefix, "43");
+    return [tokens, lhs];
+}
+
+// module.exports = {checkStartButtonStatus: checkStartButtonStatus, buttonClick: buttonClick, performDaTest: performDaTest}

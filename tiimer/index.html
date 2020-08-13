@@ -33,7 +33,7 @@
   <!-- User JS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </head>
-<body onload="tiimer.checkStartButtonStatus();">
+<body onload="checkStartButtonStatus();">
 
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -47,9 +47,10 @@
 	  </div>
 	  
         <label for="expr">Timing expression:</label>
-        <input type="text" onkeyup="tiimer.checkStartButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
+        <input type="text" onkeyup="checkStartButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
 	</form>
-	<button id="start_button" class="button-primary" onclick="tiimer.buttonClick();">Start</button>
+	<button id="start_button" class="button-primary" onclick="buttonClick();">Start</button>
+	<button id="test_button" class="button-primary" onclick="performDaTest();">Run</button>
 	<div id="timer">
 	</div>
       </div>
@@ -100,6 +101,6 @@
       </div>
     </div>
   </div>
-  <script src="tiimer_compiled.js?nonce=45"></script>
+  <script src="tiimer.js?nonce=30"></script>
 </body>
 </html>
