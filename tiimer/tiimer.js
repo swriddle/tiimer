@@ -32,6 +32,21 @@ function enablePauseResumeButton() {
 function disablePauseResumeButton() {
     pauseResumeButton().classList.remove("button-primary");
     pauseResumeButton().disabled = true;
+    pauseResumeButton().innerHTML = "-";
+}
+
+function setStartCancelButtonRoleStart() {
+    startCancelButton().innerHTML = "Start";
+}
+function setStartCancelButtonRoleCancel() {
+    startCancelButton().innerHTML = "Cancel";
+}
+
+function setPauseResumeButtonRoleResume() {
+    pauseResumeButton().innerHTML = "Resume";
+}
+function setPauseResumeButtonRolePause() {
+    pauseResumeButton().innerHTML = "Pause";
 }
 
 function startCancelButton() {
@@ -43,9 +58,9 @@ function pauseResumeButton() {
 }
 
 function formatTimer(duration) {
-    let hours = duration.hours.padStart(2, "0");
-    let minutes = duration.minutes.padStart(2, "0");
-    let seconds = duration.seconds.padStart(2, "0");
+    let hours = duration.hours.toString().padStart(2, "0");
+    let minutes = duration.minutes.toString().padStart(2, "0");
+    let seconds = duration.seconds.toString().padStart(2, "0");
     return `${hours}:${minutes}:${seconds}`;
 }
 
@@ -57,18 +72,38 @@ function pauseResumeButtonClick() {
     }
 }
 
+var TIMER_RUNNING = false;
+var TIMER_PROCESS = null;
+
 function isTimerRunning() {
-    // TODO: implement
+    return TIMER_RUNNING;
 }
 
 function pauseButtonClick() {
+    console.log("pause button click");
+    setPauseResumeButtonRoleResume();
+    TIMER_RUNNING = false;
+    clearInterval(TIMER_PROCESS);
     // TODO: implement
+    // stop the timer from running, but leave the input box disabled,
+    // change the role of pause/resume button to resume
 }
 
 function resumeButtonClick() {
+    console.log("resume button click");
+    setPauseResumeButtonRolePause();
+    var exprElement = document.getElementById("expr");
+    var content = exprElement.value;
+    let response = parse(content);
+    let laps = response.result;
+    startTimer(laps);
+    // startTimer();
     // TODO: implement
+    // start the timer from last position
+    // change the role of pause/resume button to resume
 }
 
+// braindump - just need to make sure that unless a timer is completely empty of context that the cancel option remains available - same with when the text field should be made modifiable
 function startCancelButtonClick() {
     if (isTimerRunning()) {
         cancelButtonClick();
@@ -77,13 +112,37 @@ function startCancelButtonClick() {
     }
 }
 
+function setTextBoxUnmodifiable() {
+    var exprElement = document.getElementById("expr");
+    exprElement.disabled = true;
+}
+function setTextBoxModifiable() {
+    var exprElement = document.getElementById("expr");
+    exprElement.disabled = false;
+}
+
 function cancelButtonClick() {
+    console.log("cancel button click");
     // TODO: implement
+    // disable pause/resume button, set label to "-"
+    disablePauseResumeButton();
+    enableStartCancelButton();
+    setStartCancelButtonRoleStart();
+    let lapsSpan = document.getElementById("laps");
+    let timerSpan = document.getElementById("timer");
+    lapsSpan.innerHTML = "__ of __";
+    timerSpan.innerHTML = "00:00:00";
+    setTextBoxModifiable();
+    TIMER_RUNNING = false;
+    clearInterval(TIMER_PROCESS);
 }
 
 function startButtonClick() {
+    console.log("start button click");
     let lapsSpan = document.getElementById("laps");
     let timerSpan = document.getElementById("timer");
+    // var startCancelButton = document.getElementById("startCancelButton");
+    // var pauseResumeButton = document.getElementById("pauseResumeButton");
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
     console.log(`Raw text box value: *${content}*`);
@@ -94,16 +153,86 @@ function startButtonClick() {
         return;
     }
     let result = response.result;
-    lapsSpan.innerHTML = `1 of ${result.length}`;
-    timerSpan.innerHTML = formatTimer(result[0]);
+    // lapsSpan.innerHTML = `1 of ${result.length}`;
+    // timerSpan.innerHTML = formatTimer(result[0]);
+    initializeLap(result, 0);
+    enableStartCancelButton();
+    setStartCancelButtonRoleCancel();
+    enablePauseResumeButton();
+    setPauseResumeButtonRolePause();
+    setTextBoxUnmodifiable();
+
     startTimer(result);
 }
 
+function initializeLap(laps, index) {
+    let lapsSpan = document.getElementById("laps")
+    let timerSpan = document.getElementById("timer")
+    lapsSpan.innerHTML = `${index + 1} of ${laps.length}`;
+    timerSpan.innerHTML = formatTimer(laps[index]);
+}
+
 function startTimer(laps) {
-    // set start/cancel button to cancel
-    // set pause/resume button to pause and enable
-    // disable input into text box
-    // TODO: implement
+    let lapsSpan = document.getElementById("laps")
+    let timerSpan = document.getElementById("timer")
+    TIMER_RUNNING = true;
+    TIMER_PROCESS = setInterval(function() {
+        if (timerSpan.innerHTML == "00:00:00") {
+            // go to next lap if possible
+            let m = lapsSpan.innerHTML.match(/^([0-9]+) of ([0-9]+)$/);
+            if (m) {
+                if (m[1] == m[2]) {
+                    // all done
+                    // pack it in
+                    console.log("I think we're done");
+                } else {
+                    let one_based_index = m[1];
+                    let index = parseInt(one_based_index, 10) - 1;
+                    let lap = laps[index];
+                    initializeLap(laps, index);
+                }
+            } else {
+                console.log("error!");
+            }
+        } else {
+            // decrement current lap
+            let match = timerSpan.innerHTML.match(/^([0-9]+):([0-9]+):([0-9]+)$/);
+            if (match) {
+                console.log("all of m: " + JSON.stringify(match));
+                let h = match[1];
+                let m = match[2];
+                let s = match[3];
+                console.log("h: " + h);
+                console.log("m: " + m);
+                console.log("s: " + s);
+                h = parseInt(h, 10);
+                m = parseInt(m, 10);
+                s = parseInt(s, 10);
+                if (s > 0) {
+                    timerSpan.innerHTML = formatTimer({hours: h, minutes: m, seconds: s - 1});
+                } else {
+                    if (m > 0) {
+                        timerSpan.innerHTML = formatTimer({hours: h, minutes: m - 1, seconds: 59});
+                    } else {
+                        timerSpan.innerHTML = formatTimer({hours: h - 1, minutes: 59, seconds: 59});
+                    }
+                }
+            } else {
+                console.log("error!");
+            }
+        }
+
+        // decrement the timer and traverse the laps structure according to laps
+    }, 1000);
+    // setInterval(function() {
+    //     let currentLap = 1;
+
+    //     document.getElementById("
+    // }, 1000);
+    // // set start/cancel button to cancel
+    // // set pause/resume button to pause and enable
+    // // disable input into text box
+    // // TODO: implement
 }
 
 function Duration(hours, minutes, seconds) {

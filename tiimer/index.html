@@ -33,7 +33,7 @@
   <!-- User JS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </head>
-<body onload="checkStartButtonStatus();">
+<body onload="checkButtonStatus();">
 
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -50,7 +50,7 @@
         <input type="text" onkeyup="checkButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
 	</form>
 	<button id="start_cancel_button" class="button-primary" onclick="startCancelButtonClick();">Start</button>
-	<button id="pause_resume_button" class="button-primary" onclick="pauseResumeButtonClick();">Pause</button>
+	<button id="pause_resume_button" class="button-primary" onclick="pauseResumeButtonClick();">-</button>
 	<div id="timer_container">
           <ul>
             <li>Laps: <span id="laps">__ of __</span></li>
@@ -105,6 +105,6 @@
       </div>
     </div>
   </div>
-  <script src="tiimer.js?nonce=39"></script>
+  <script src="tiimer.js?nonce=55"></script>
 </body>
 </html>
