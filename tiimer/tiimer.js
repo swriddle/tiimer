@@ -1,7 +1,8 @@
 "use strict";
 
 function checkStartButtonStatus() {
-    return false;
+    console.log("checking start button status");
+    return true;
 }
 
 function enableButton() {
@@ -19,7 +20,11 @@ function button() {
 }
 
 function buttonClick() {
-    console.log("click!");
+    var exprElement = document.getElementById("expr");
+    var content = exprElement.value;
+    console.log(`Raw text box value: *${content}*`);
+    let response = parse(content);
+    console.log(`Parsed response: ${JSON.stringify(response)}`);
 }
 
 function Duration(hours, minutes, seconds) {
@@ -33,7 +38,10 @@ Duration.prototype.toString = function() {
     let minuteString = this.minutes == null ? "0" : this.minutes;
     let secondString = this.seconds == null ? "0" : this.seconds;
     return `Duration(${hourString}H${minuteString}M${secondString}S)`;
-}
+};
+
+Duration.prototype.json = function() {
+};
 
 function ParenthesizedExpression(expr) {
     this.expr = expr;
@@ -42,6 +50,9 @@ function ParenthesizedExpression(expr) {
 ParenthesizedExpression.prototype.toString = function() {
     return "[ " + this.expr + " ]";
 }
+
+ParenthesizedExpression.prototype.json = function() {
+};
 
 function Repetition(expr, count) {
     this.expr = expr;
@@ -52,6 +63,9 @@ Repetition.prototype.toString = function() {
     return this.expr + " X " + this.count;
 }
 
+Repetition.prototype.json = function() {
+};
+
 function Conjunction(lhs, rhs) {
     this.lhs = lhs;
     this.rhs = rhs;
@@ -60,6 +74,9 @@ function Conjunction(lhs, rhs) {
 Conjunction.prototype.toString = function() {
     return `Conjunction(${this.lhs}, ${this.rhs})`;
 }
+
+Conjunction.prototype.json = function() {
+};
 
 function parseLeftParen(tokens) {
     if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
@@ -149,15 +166,6 @@ function parseRepetition(tokens) {
     }
 }
 
-function performDaTest() {
-    let tokens = tokenize("(1h2m3s)x4,8m");
-    let [tokensLeft, response] = parseExpressionTopLevel(tokens);
-    if (tokensLeft.length > 0) {
-        console.log("tokens left!");
-    }
-    console.log("Response: " + response);
-}
-
 function tokenize(expr) {
     // gobble any whitespace
     var lastValue = null;
@@ -221,8 +229,18 @@ function tokenize(expr) {
     return tokens;
 }
 
-function parseExpressionTopLevel(tokens) {
-    return parseExpression(tokens, "");
+function parse(expressionString) {
+    let tokens = tokenize(expressionString);
+    if (tokens) {
+        let [tokensLeft, result] = parseExpression(tokens);
+        if (tokensLeft.length == 0) {
+            return {status: "success", result: result.json()};
+        } else {
+            return {status: "tokens-left"};
+        }
+    } else {
+        return {status: "cannot-tokenize"}
+    }
 }
 
 // all parse_* functions take a list or tuple (iterable) of tokens and
