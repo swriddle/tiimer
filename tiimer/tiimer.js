@@ -31,7 +31,80 @@ states:
   textField: disabled
 */
 
+var currentState;
+
+function updateStateDebugInfo() {
+    document.getElementById("state").innerHTML = currentState;
+}
+
+function setStateRunning() {
+    currentState = "running";
+    updateStateDebugInfo();
+    checkButtonStatus();
+}
+
+function setStateUnset() {
+    currentState = "unset";
+    updateStateDebugInfo();
+    checkButtonStatus();
+}
+
+function setStateFinished() {
+    currentState = "finished";
+    updateStateDebugInfo();
+    checkButtonStatus();
+}
+
+function setStatePaused() {
+    currentState = "paused";
+    updateStateDebugInfo();
+    checkButtonStatus();
+}
+
+setStateUnset();
+
+function isParseable() {
+    var exprElement = document.getElementById("expr");
+    var content = exprElement.value;
+    return parse(content).status == "success";
+}
+
 function checkButtonStatus() {
+    let doesParseSuccessfully = isParseable();
+    if (currentState == "unset") {
+        disablePauseResumeButton();
+        setStartCancelButtonRoleStart();
+        if (doesParseSuccessfully) {
+            enableStartCancelButton();
+        } else {
+            disableStartCancelButton();
+        }
+        setTextBoxModifiable();
+    } else if (currentState == "running") {
+        setStartCancelButtonRoleCancel();
+        enableStartCancelButton();
+        setPauseResumeButtonRolePause();
+        enablePauseResumeButton();
+        setTextBoxUnmodifiable();
+    } else if (currentState == "finished") {
+        disablePauseResumeButton();
+        setStartCancelButtonRoleStart();
+        if (doesParseSuccessfully) {
+            enableStartCancelButton();
+        } else {
+            disableStartCancelButton();
+        }
+        setTextBoxModifiable();
+    } else if (currentState == "paused") {
+        enablePauseResumeButton();
+        setPauseResumeButtonRoleResume();
+        enableStartCancelButton();
+        setStartCancelButtonRoleCancel();
+        setTextBoxUnmodifiable();
+    } else {
+        console.log("can't happen");
+    }
+    /*
     console.log("checking start button status");
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
@@ -43,6 +116,7 @@ function checkButtonStatus() {
         disablePauseResumeButton();
     }
     // return true;
+    */
 }
 
 function enableStartCancelButton() {
@@ -61,6 +135,7 @@ function enablePauseResumeButton() {
 }
 
 function disablePauseResumeButton() {
+    console.log("disable pause resume button");
     pauseResumeButton().classList.remove("button-primary");
     pauseResumeButton().disabled = true;
     pauseResumeButton().innerHTML = "-";
@@ -96,11 +171,26 @@ function formatTimer(duration) {
 }
 
 function pauseResumeButtonClick() {
+    if (currentState == "running") {
+        pauseButtonClick();
+        // setStatePaused();
+    } else if (currentState == "paused") {
+        resumeButtonClick();
+        // setStateRunning()
+    } else {
+        console.log("error!");
+    }
+
+
+
+
+    /*
     if (isTimerRunning()) {
         pauseButtonClick();
     } else {
         resumeButtonClick();
     }
+    */
 }
 
 var TIMER_RUNNING = false;
@@ -111,10 +201,14 @@ function isTimerRunning() {
 }
 
 function pauseButtonClick() {
+    /*
+    // if running it pauses, if paused it resumes...
     console.log("pause button click");
     setPauseResumeButtonRoleResume();
+    */
     TIMER_RUNNING = false;
     clearInterval(TIMER_PROCESS);
+    setStatePaused();
     // TODO: implement
     // stop the timer from running, but leave the input box disabled,
     // change the role of pause/resume button to resume
@@ -128,6 +222,7 @@ function resumeButtonClick() {
     let response = parse(content);
     let laps = response.result;
     startTimer(laps);
+    setStateRunning();
     // startTimer();
     // TODO: implement
     // start the timer from last position
@@ -136,10 +231,16 @@ function resumeButtonClick() {
 
 // braindump - just need to make sure that unless a timer is completely empty of context that the cancel option remains available - same with when the text field should be made modifiable
 function startCancelButtonClick() {
-    if (isTimerRunning()) {
+    if (currentState == "unset") {
+        startButtonClick();
+    } else if (currentState == "running") {
+        cancelButtonClick();
+    } else if (currentState == "finished") {
+        startButtonClick();
+    } else if (currentState == "paused") {
         cancelButtonClick();
     } else {
-        startButtonClick();
+        console.log("error!!");
     }
 }
 
@@ -153,6 +254,7 @@ function setTextBoxModifiable() {
 }
 
 function cancelButtonClick() {
+    setStateUnset();
     console.log("cancel button click");
     // TODO: implement
     // disable pause/resume button, set label to "-"
@@ -169,6 +271,7 @@ function cancelButtonClick() {
 }
 
 function startButtonClick() {
+    setStateRunning();
     console.log("start button click");
     let lapsSpan = document.getElementById("laps");
     let timerSpan = document.getElementById("timer");
@@ -273,18 +376,19 @@ function Duration(hours, minutes, seconds) {
 }
 
 Duration.prototype.toString = function() {
+    console.log("duration prototype tostring");
     let hourString = this.hours == null ? "0" : this.hours;
     let minuteString = this.minutes == null ? "0" : this.minutes;
     let secondString = this.seconds == null ? "0" : this.seconds;
     return `Duration(${hourString}H${minuteString}M${secondString}S)`;
 };
 
-Duration.prototype.json = function() {
+Duration.prototype.jsonOutput = function() {
     let hoursNum = this.hours == null ? 0 : parseInt(this.hours, 10);
     let minutesNum = this.minutes == null ? 0 : parseInt(this.minutes, 10);
     let secondsNum = this.seconds == null ? 0 : parseInt(this.seconds, 10);
     return [{hours: hoursNum, minutes: minutesNum, seconds: secondsNum}];
-};
+}
 
 function ParenthesizedExpression(expr) {
     this.expr = expr;
@@ -487,8 +591,10 @@ function parse(expressionString) {
         let resultTuple = parseExpression(tokens);
         if (resultTuple) {
             let [tokensLeft, result] = resultTuple;
+            console.log("raw result is: '" + JSON.stringify(result) + "'");
+            console.log("constructor: " + result.constructor.name);
             if (tokensLeft.length == 0) {
-                return {status: "success", result: result.json()};
+                return {status: "success", result: result.jsonOutput()};
             } else {
                 return {status: "tokens-left"};
             }
@@ -573,19 +679,23 @@ function parseExpression(tokens) {
                         if (secondCase) {
                             [tokens, repr] = secondCase;
                             secondValue = numberValue;
+                            console.log("lhs set 1");
                             lhs = new Duration(hourValue, minuteValue, secondValue);
                         } else {
                             return null;
                         }
                     } else {
+                        console.log("lhs set 2");
                         lhs = new Duration(hourValue, minuteValue, null);
                     }
                 } else if (second_case) {
                     [tokens, repr] = secondCase;
                     secondValue = numberValue;
+                    console.log("lhs set 3");
                     lhs = new Duration(hourValue, null, secondValue);
                 }
             } else {
+                console.log("lhs set 4");
                 lhs = new Duration(hourValue, null, null);
             }
         } else if (minuteCase) {
@@ -599,16 +709,19 @@ function parseExpression(tokens) {
                 if (secondCase) {
                     [tokens, repr] = secondCase;
                     secondValue = numberValue;
+                    console.log("lhs set 5");
                     lhs = new Duration(null, minuteValue, secondValue);
                 } else {
                     return null;
                 }
             } else {
+                console.log("lhs set 6");
                 lhs = new Duration(null, minuteValue, null)
             }
         } else if (secondCase) {
             secondValue = number;
             [tokens, repr] = secondCase;
+            console.log("lhs set 7");
             lhs = new Duration(null, null, secondValue);
         } else {
             return null;
@@ -624,6 +737,7 @@ function parseExpression(tokens) {
     conjunctionCase = parseConjunction(tokens);
   
     if (!repetitionCase && !conjunctionCase) {
+        console.log("penultimate return");
         return [tokens, lhs];
     }
   
@@ -634,6 +748,7 @@ function parseExpression(tokens) {
             if (numberMatch) {
                 [tokens, repr] = numberMatch;
                 numberValue = repr;
+                console.log("wrapping repetition");
                 lhs = new Repetition(lhs, numberValue);
             } else {
                 return null;
@@ -643,6 +758,7 @@ function parseExpression(tokens) {
             exprMatch = parseExpression(tokens);
             if (exprMatch) {
                 [tokens, repr] = exprMatch;
+                console.log("wrapping conjunction");
                 lhs = new Conjunction(lhs, repr);
             } else {
                 return null;
@@ -652,5 +768,6 @@ function parseExpression(tokens) {
         repetitionCase = parseRepetition(tokens);
         conjunctionCase = parseConjunction(tokens);
     }
+    console.log("ultimate return");
     return [tokens, lhs];
 }
