@@ -103,6 +103,10 @@ function resumeButtonClick() {
     // change the role of pause/resume button to resume
 }
 
+/*
+
+*/
+
 // braindump - just need to make sure that unless a timer is completely empty of context that the cancel option remains available - same with when the text field should be made modifiable
 function startCancelButtonClick() {
     if (isTimerRunning()) {
