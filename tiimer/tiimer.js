@@ -169,19 +169,6 @@ function checkButtonStatus() {
     } else {
         console.log("can't happen");
     }
-    /*
-    console.log("checking start button status");
-    var exprElement = document.getElementById("expr");
-    var content = exprElement.value;
-    if (parse(content).status == "success") {
-        enableStartCancelButton();
-        disablePauseResumeButton();
-    } else {
-        disableStartCancelButton();
-        disablePauseResumeButton();
-    }
-    // return true;
-    */
 }
 
 function enableStartCancelButton() {
@@ -238,24 +225,11 @@ function formatTimer(duration) {
 function pauseResumeButtonClick() {
     if (currentState == "running") {
         pauseButtonClick();
-        // setStatePaused();
     } else if (currentState == "paused") {
         resumeButtonClick();
-        // setStateRunning()
     } else {
         console.log("error!");
     }
-
-
-
-
-    /*
-    if (isTimerRunning()) {
-        pauseButtonClick();
-    } else {
-        resumeButtonClick();
-    }
-    */
 }
 
 var TIMER_RUNNING = false;
@@ -266,17 +240,9 @@ function isTimerRunning() {
 }
 
 function pauseButtonClick() {
-    /*
-    // if running it pauses, if paused it resumes...
-    console.log("pause button click");
-    setPauseResumeButtonRoleResume();
-    */
     TIMER_RUNNING = false;
     clearInterval(TIMER_PROCESS);
     setStatePaused();
-    // TODO: implement
-    // stop the timer from running, but leave the input box disabled,
-    // change the role of pause/resume button to resume
 }
 
 function resumeButtonClick() {
@@ -288,13 +254,8 @@ function resumeButtonClick() {
     let laps = response.result;
     startTimer(laps);
     setStateRunning();
-    // startTimer();
-    // TODO: implement
-    // start the timer from last position
-    // change the role of pause/resume button to resume
 }
 
-// braindump - just need to make sure that unless a timer is completely empty of context that the cancel option remains available - same with when the text field should be made modifiable
 function startCancelButtonClick() {
     if (currentState == "unset") {
         startButtonClick();
@@ -320,9 +281,6 @@ function setTextBoxModifiable() {
 
 function cancelButtonClick() {
     setStateUnset();
-    console.log("cancel button click");
-    // TODO: implement
-    // disable pause/resume button, set label to "-"
     disablePauseResumeButton();
     enableStartCancelButton();
     setStartCancelButtonRoleStart();
@@ -337,23 +295,16 @@ function cancelButtonClick() {
 
 function startButtonClick() {
     setStateRunning();
-    console.log("start button click");
     let lapsSpan = document.getElementById("laps");
     let timerSpan = document.getElementById("timer");
-    // var startCancelButton = document.getElementById("startCancelButton");
-    // var pauseResumeButton = document.getElementById("pauseResumeButton");
     var exprElement = document.getElementById("expr");
     var content = exprElement.value;
-    console.log(`Raw text box value: *${content}*`);
     let response = parse(content);
-    console.log(`Parsed response: ${JSON.stringify(response)}`);
     if (response.status != "success") {
         console.log("shouldn't happen");
         return;
     }
     let result = response.result;
-    // lapsSpan.innerHTML = `1 of ${result.length}`;
-    // timerSpan.innerHTML = formatTimer(result[0]);
     initializeLap(result, 0);
     enableStartCancelButton();
     setStartCancelButtonRoleCancel();
@@ -402,13 +353,9 @@ function startTimer(laps) {
             // decrement current lap
             let match = timerSpan.innerHTML.match(/^([0-9]+):([0-9]+):([0-9]+)$/);
             if (match) {
-                console.log("all of m: " + JSON.stringify(match));
                 let h = match[1];
                 let m = match[2];
                 let s = match[3];
-                console.log("h: " + h);
-                console.log("m: " + m);
-                console.log("s: " + s);
                 h = parseInt(h, 10);
                 m = parseInt(m, 10);
                 s = parseInt(s, 10);
@@ -425,18 +372,7 @@ function startTimer(laps) {
                 console.log("error!");
             }
         }
-
-        // decrement the timer and traverse the laps structure according to laps
     }, 1000);
-    // setInterval(function() {
-    //     let currentLap = 1;
-
-    //     document.getElementById("
-    // }, 1000);
-    // // set start/cancel button to cancel
-    // // set pause/resume button to pause and enable
-    // // disable input into text box
-    // // TODO: implement
 }
 
 function parseLeftParen(tokens) {
@@ -596,8 +532,6 @@ function parse(expressionString) {
         let resultTuple = parseExpression(tokens);
         if (resultTuple) {
             let [tokensLeft, result] = resultTuple;
-            console.log("raw result is: '" + JSON.stringify(result) + "'");
-            console.log("constructor: " + result.constructor.name);
             if (tokensLeft.length == 0) {
                 return {status: "success", result: result.json()};
             } else {
@@ -684,23 +618,19 @@ function parseExpression(tokens) {
                         if (secondCase) {
                             [tokens, repr] = secondCase;
                             secondValue = numberValue;
-                            console.log("lhs set 1");
                             lhs = new Duration(hourValue, minuteValue, secondValue);
                         } else {
                             return null;
                         }
                     } else {
-                        console.log("lhs set 2");
                         lhs = new Duration(hourValue, minuteValue, null);
                     }
                 } else if (second_case) {
                     [tokens, repr] = secondCase;
                     secondValue = numberValue;
-                    console.log("lhs set 3");
                     lhs = new Duration(hourValue, null, secondValue);
                 }
             } else {
-                console.log("lhs set 4");
                 lhs = new Duration(hourValue, null, null);
             }
         } else if (minuteCase) {
@@ -714,19 +644,16 @@ function parseExpression(tokens) {
                 if (secondCase) {
                     [tokens, repr] = secondCase;
                     secondValue = numberValue;
-                    console.log("lhs set 5");
                     lhs = new Duration(null, minuteValue, secondValue);
                 } else {
                     return null;
                 }
             } else {
-                console.log("lhs set 6");
                 lhs = new Duration(null, minuteValue, null)
             }
         } else if (secondCase) {
             secondValue = number;
             [tokens, repr] = secondCase;
-            console.log("lhs set 7");
             lhs = new Duration(null, null, secondValue);
         } else {
             return null;
@@ -742,7 +669,6 @@ function parseExpression(tokens) {
     conjunctionCase = parseConjunction(tokens);
   
     if (!repetitionCase && !conjunctionCase) {
-        console.log("penultimate return");
         return [tokens, lhs];
     }
   
@@ -753,7 +679,6 @@ function parseExpression(tokens) {
             if (numberMatch) {
                 [tokens, repr] = numberMatch;
                 numberValue = repr;
-                console.log("wrapping repetition");
                 lhs = new Repetition(lhs, numberValue);
             } else {
                 return null;
@@ -763,7 +688,6 @@ function parseExpression(tokens) {
             exprMatch = parseExpression(tokens);
             if (exprMatch) {
                 [tokens, repr] = exprMatch;
-                console.log("wrapping conjunction");
                 lhs = new Conjunction(lhs, repr);
             } else {
                 return null;
@@ -773,6 +697,5 @@ function parseExpression(tokens) {
         repetitionCase = parseRepetition(tokens);
         conjunctionCase = parseConjunction(tokens);
     }
-    console.log("ultimate return");
     return [tokens, lhs];
 }
