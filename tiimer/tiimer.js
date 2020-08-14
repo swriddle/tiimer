@@ -337,6 +337,7 @@ function startTimer(laps) {
                     TIMER_RUNNING = false;
                     clearInterval(TIMER_PROCESS);
                     setStateFinished();
+                    lapsSpan.innerHTML = "__ of __";
                 } else {
                     let oneBasedIndex = m[1];
                     let nextLap = parseInt(oneBasedIndex, 10) + 1;
