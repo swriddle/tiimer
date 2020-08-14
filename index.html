@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Tiimer - A simple, minimalist HIIT timer</title>
+  <meta name="description" content="A simple, minimalist HIIT timer">
+  <meta name="author" content="Sean Riddle">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="normalize.css">
+  <link rel="stylesheet" href="skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- <link rel="icon" type="image/png" href="images/favicon.png"> -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- User JS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</head>
+<body onload="checkButtonStatus();">
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+      <div id="timer_frame" class="six columns">
+        <h3>Tiimer</h3>
+	<h4>Minimalist HIIT Timer</h4>
+	<form>
+	  <div class="row">
+	  </div>
+	  
+        <label for="expr">Timing expression:</label>
+        <input type="text" onkeyup="checkButtonStatus();" class="u-full-width" id="expr" name="expr"><br>
+	</form>
+	<button id="start_cancel_button" class="button-primary" onclick="startCancelButtonClick();">Start</button>
+	<button id="pause_resume_button" class="button-primary" onclick="pauseResumeButtonClick();">-</button>
+	<div id="timer_container">
+          <ul>
+            <li>Laps: <span id="laps">__ of __</span></li>
+            <li>Timer: <span id="timer">00:00:00</span></li>
+            <li>State: <span id="state"></span></li>
+          </ul>
+          <button id="show_hide_instructions" class="button-primary" onclick="toggleInstructionDisplay();">Hide Instructions</button>
+	</div>
+      </div>
+      
+      <div id="instructions" class="six columns">
+
+  	<h4>Instructions</h4>
+  
+  	<h5>Time literals</h5>
+	<p>A string in the form "XhYmZs" represents a timed period of X hours, Y minutes, and Z seconds. Any of the different time durations can be present or absent.</p>
+  
+  	<h6><b>Examples</b></h6>
+	<ul>
+  	  <li>"1m30s" - one 1-minute-30-second lap</li>
+	</ul>
+  
+  	<h5>Conjunctions</h5>
+  	<p>Multiple time periods can be separated with a comma (",").</p>
+  
+  	<h6><b>Examples</b></h6>
+	<ul>
+	  <li>"1m,30s" - one one-minute lap followed by one lap of 30 seconds</li>
+	</ul>
+
+  
+  	<h5>Grouping</h5>
+  	<p>Use parentheses for grouping.</p>
+  
+  	<h6><b>Examples</b></h6>
+	<ul>
+	  <li>"(1m)" - one one-minute lap (parentheses have no effect in this context)</li>
+	  <li>"((1m))" - one one-minute lap (parentheses may be nested)</li>
+	  <li>"(1m),30s" - one one-minute lap followed by one 30-second lap (groupings may be conjuncted)</li>
+	</ul>
+  
+  	<h5>Repetition</h5>
+  	<p>The syntax "EXPRxn", where EXPR is a timing expression, x is the literal "x", and n is an integer greater than 0, means that the grouping should be executed n times, one after another.</p>
+  
+	<div id="repetition_examples">
+	<h6><b>Examples</b></h6>
+	<ul>
+	  <li>"1mx3" - three one-minute laps</li>
+	  <li>"(1m)x3" - three one-minute laps (you can repeat groupings)</li>
+	  <li>"1mx3,30s" - three one-minute laps followed by one 30-second lap</li>
+	  <li>"(1m,30s)x2" - one-minute lap, then 30-second lap, then one-minute lap, then 30-second lap</li>
+	</ul>
+	</div>
+      </div>
+    </div>
+  </div>
+  <script src="tiimer.js?nonce=73"></script>
+
+</body>
+</html>
