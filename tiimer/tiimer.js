@@ -96,6 +96,18 @@ Conjunction.prototype.json = function() {
     return this.lhs.json().concat(this.rhs.json());
 }
 
+function toggleInstructionDisplay() {
+    let instructions = document.getElementById("instructions");
+    let instructionsButton = document.getElementById("show_hide_instructions");
+    if (instructions.style.display === "none") {
+        instructions.style.display = "block";
+        instructionsButton.innerHTML = "Hide Instructions";
+    } else {
+        instructions.style.display = "none";
+        instructionsButton.innerHTML = "Show Instructions";
+    }
+}
+
 var currentState;
 
 function updateStateDebugInfo() {
