@@ -31,6 +31,71 @@ states:
   textField: disabled
 */
 
+function Duration(hours, minutes, seconds) {
+    this.hours = hours;
+    this.minutes = minutes;
+    this.seconds = seconds;
+}
+
+Duration.prototype.toString = function() {
+    console.log("duration prototype tostring");
+    let hourString = this.hours == null ? "0" : this.hours;
+    let minuteString = this.minutes == null ? "0" : this.minutes;
+    let secondString = this.seconds == null ? "0" : this.seconds;
+    return `Duration(${hourString}H${minuteString}M${secondString}S)`;
+}
+
+Duration.prototype.json = function() {
+    let hoursNum = this.hours == null ? 0 : parseInt(this.hours, 10);
+    let minutesNum = this.minutes == null ? 0 : parseInt(this.minutes, 10);
+    let secondsNum = this.seconds == null ? 0 : parseInt(this.seconds, 10);
+    return [{hours: hoursNum, minutes: minutesNum, seconds: secondsNum}];
+}
+
+function ParenthesizedExpression(expr) {
+    this.expr = expr;
+}
+
+ParenthesizedExpression.prototype.toString = function() {
+    return "[ " + this.expr + " ]";
+}
+
+ParenthesizedExpression.prototype.json = function() {
+    return this.expr.json();
+}
+
+function Repetition(expr, count) {
+    this.expr = expr;
+    this.count = parseInt(count, 10);
+}
+
+Repetition.prototype.toString = function() {
+    return this.expr + " X " + this.count;
+}
+
+Repetition.prototype.json = function() {
+    let json = this.expr.json();
+    let concatenated = [];
+    var i;
+    for (i = 0; i < this.count; i++) {
+        concatenated = concatenated.concat(json);
+    }
+    return concatenated;
+}
+
+function Conjunction(lhs, rhs) {
+    this.lhs = lhs;
+    this.rhs = rhs;
+}
+
+Conjunction.prototype.toString = function() {
+    return `Conjunction(${this.lhs}, ${this.rhs})`;
+}
+
+Conjunction.prototype.json = function() {
+    return this.lhs.json().concat(this.rhs.json());
+}
+
 var currentState;
 
 function updateStateDebugInfo() {
@@ -318,10 +383,15 @@ function startTimer(laps) {
                 if (m[1] == m[2]) {
                     // all done
                     // pack it in
-                    console.log("I think we're done");
+                    TIMER_RUNNING = false;
+                    clearInterval(TIMER_PROCESS);
+                    setStateFinished();
                 } else {
-                    let one_based_index = m[1];
-                    let index = parseInt(one_based_index, 10) - 1;
+                    let oneBasedIndex = m[1];
+                    let nextLap = parseInt(oneBasedIndex, 10) + 1;
+                    let newHTML = `${nextLap} of ${m[2]}`;
+                    lapsSpan.innerHTML = newHTML;
+                    let index = parseInt(oneBasedIndex, 10);
                     let lap = laps[index];
                     initializeLap(laps, index);
                 }
@@ -368,71 +438,6 @@ function startTimer(laps) {
     // // disable input into text box
     // // TODO: implement
 }
-
-function Duration(hours, minutes, seconds) {
-    this.hours = hours;
-    this.minutes = minutes;
-    this.seconds = seconds;
-}
-
-Duration.prototype.toString = function() {
-    console.log("duration prototype tostring");
-    let hourString = this.hours == null ? "0" : this.hours;
-    let minuteString = this.minutes == null ? "0" : this.minutes;
-    let secondString = this.seconds == null ? "0" : this.seconds;
-    return `Duration(${hourString}H${minuteString}M${secondString}S)`;
-};
-
-Duration.prototype.jsonOutput = function() {
-    let hoursNum = this.hours == null ? 0 : parseInt(this.hours, 10);
-    let minutesNum = this.minutes == null ? 0 : parseInt(this.minutes, 10);
-    let secondsNum = this.seconds == null ? 0 : parseInt(this.seconds, 10);
-    return [{hours: hoursNum, minutes: minutesNum, seconds: secondsNum}];
-}
-
-function ParenthesizedExpression(expr) {
-    this.expr = expr;
-}
-
-ParenthesizedExpression.prototype.toString = function() {
-    return "[ " + this.expr + " ]";
-}
-
-ParenthesizedExpression.prototype.json = function() {
-    return this.expr.json();
-};
-
-function Repetition(expr, count) {
-    this.expr = expr;
-    this.count = parseInt(count, 10);
-}
-
-Repetition.prototype.toString = function() {
-    return this.expr + " X " + this.count;
-}
-
-Repetition.prototype.json = function() {
-    let json = this.expr.json();
-    let concatenated = [];
-    var i;
-    for (i = 0; i < this.count; i++) {
-        concatenated = concatenated.concat(json);
-    }
-    return concatenated;
-};
-
-function Conjunction(lhs, rhs) {
-    this.lhs = lhs;
-    this.rhs = rhs;
-}
-
-Conjunction.prototype.toString = function() {
-    return `Conjunction(${this.lhs}, ${this.rhs})`;
-}
-
-Conjunction.prototype.json = function() {
-    return this.lhs.json().concat(this.rhs.json());
-};
 
 function parseLeftParen(tokens) {
     if (!Array.isArray(tokens) || (Array.isArray(tokens) && tokens.length == 0)) {
@@ -594,7 +599,7 @@ function parse(expressionString) {
             console.log("raw result is: '" + JSON.stringify(result) + "'");
             console.log("constructor: " + result.constructor.name);
             if (tokensLeft.length == 0) {
-                return {status: "success", result: result.jsonOutput()};
+                return {status: "success", result: result.json()};
             } else {
                 return {status: "tokens-left"};
             }
