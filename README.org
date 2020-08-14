@@ -2,7 +2,7 @@
 
 * README
 ** What is it?
-   A minimal HIIT timer.
+   A minimal <a href="https://swriddle.github.io/tiimer/">HIIT timer</a>.
    
 ** Attributions
 
