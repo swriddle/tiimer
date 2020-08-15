@@ -509,7 +509,7 @@ function tokenize(expr) {
             tokens.push(["conjunction", null]);
             continue;
         }
-        if (expr.startsWith("x")) {
+        if (expr.startsWith("x") || expr.startsWith("*")) {
             expr = expr.slice(1);
             tokens.push(["times", null]);
             continue;
