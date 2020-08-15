@@ -2,7 +2,7 @@
 
 * README
 ** What is it?
-   A minimal <a href="https://swriddle.github.io/tiimer/">HIIT timer</a>.
+   A minimal <a href="https://tiimer.app">HIIT timer</a>.
    
 ** Attributions
 
